@@ -16,6 +16,7 @@ public class cellBehavior : MonoBehaviour {
 	private GameObject[][] playerDots;
 	public int dotCap { get; set; } //player x cant place anymore dots here if dotcap is reached for this player
 	public int defaultAmt;
+	public Color origColor { get; set; }
 
 	// Use this for initialization
 	public void Init () {
@@ -28,6 +29,7 @@ public class cellBehavior : MonoBehaviour {
 		playerDots = new GameObject[2][];
 		playerDots [0] = player0dots; //should alias these references to arrays
 		playerDots [1] = player1dots;
+		origColor = GetComponent<MeshRenderer> ().material.color;
 	}
 
 	public bool canBePlayedOn(int player, bool star){
