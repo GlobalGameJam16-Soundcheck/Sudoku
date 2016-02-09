@@ -17,6 +17,8 @@ public class cellBehavior : MonoBehaviour {
 	public int dotCap { get; set; } //player x cant place anymore dots here if dotcap is reached for this player
 	public int defaultAmt;
 	public Color origColor { get; set; }
+	public GameObject outline;
+	public Color outlineOrigColor { get; set; }
 
 	// Use this for initialization
 	public void Init () {
@@ -30,13 +32,16 @@ public class cellBehavior : MonoBehaviour {
 		playerDots [0] = player0dots; //should alias these references to arrays
 		playerDots [1] = player1dots;
 		origColor = GetComponent<MeshRenderer> ().material.color;
+		outlineOrigColor = outline.GetComponent<MeshRenderer> ().material.color;
 	}
 
-	public bool canBePlayedOn(int player, bool star){
+	public bool canBePlayedOn(int player, bool star, bool firstTurn){
 		if (occupiedPlayer >= 0 || dotCount[player] >= dotCap)
 			return false;
 		if (dotCount [player] > 0) {
 			//player has a dot here so he can play
+			return true;
+		} else if (firstTurn) {
 			return true;
 		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
 			//used a star so can play on unoccupied cell with at least one dot of other player but less than cap
@@ -46,21 +51,41 @@ public class cellBehavior : MonoBehaviour {
 		}
 		
 	}
-		
-	public void makePlacement(int player, Color color, Texture texture){
-		occupiedPlayer = player;
-		foreach (GameObject dot in playerDots[player]) {
-			if (!dot.GetComponent<dotBehavior> ().coloredIn) {
-				dot.GetComponent<Material> ().color = color;
-				break;
+
+	public void hoverDot(int player, Color color, bool orig){
+		if (dotCount [player] < dotCap && playerDots[player].Length > 0) {
+			GameObject dot = playerDots[player][dotCount[player]];
+			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
+			if (!dotScript.coloredIn) {
+				if (!orig) {
+					dot.GetComponent<MeshRenderer> ().material.color = color;
+				} else {
+					dot.GetComponent<MeshRenderer> ().material.color = dotScript.origColor;
+				}
 			}
 		}
-		//make this cell's texture the passed in one
-		dotCount[player]++;
 	}
-	
-	// Update is called once per frame
-//	void Update () {
-//	
-//	}
+
+	public void updateDots(int player, Color color){
+		if (dotCount [player] < dotCap) {
+			GameObject dot = playerDots[player][dotCount[player]];
+			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
+			if (!dotScript.coloredIn) {
+				dot.GetComponent<MeshRenderer> ().material.color = color;
+				dotScript.coloredIn = true;
+				dotCount[player]++;
+			}
+		}
+	}
+		
+	public void makePlacement(int player, Material mat){
+		if (occupiedPlayer < 0) {
+			occupiedPlayer = player;
+			transform.GetComponent<MeshRenderer> ().material = mat;
+		}
+	}
+
+	public void setColor(Color color){
+		GetComponent<MeshRenderer> ().material.color = color;
+	}
 }

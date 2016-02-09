@@ -1,14 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class masterBehavior : MonoBehaviour {
 
 	public GameObject[] cellPrefabs; //0 is 0 points, 1 is 1 pt, 2 is 2 pts, 3 is pts, 4 is black mid square
 	public playerBehavior[] players;
+	private int[] score;
 
 	private GameObject[,] grid;
 	private int n;
 	private int currPlayer;
+	public float zDist;
+
+	public GameObject textField;
 
 	// Use this for initialization
 	void Start () {
@@ -28,9 +34,8 @@ public class masterBehavior : MonoBehaviour {
 				} else if (i == n/2 && j == n/2){//mid
 					whichPrefab = 4;
 				}
-				Vector3 pos = new Vector3 (transform.position.x + j*transform.localScale.x, 
-										   transform.position.y - i*transform.localScale.y, 
-										   transform.position.z * transform.localScale.z);
+				Vector3 pos = new Vector3 (transform.position.x + 1.1f*j*transform.localScale.x - 1.5f, 
+										   transform.position.y - 1.1f*i*transform.localScale.y, zDist);
 				grid[i,j] = (GameObject)Instantiate(cellPrefabs[whichPrefab], pos, transform.rotation);
 				cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
 				cellScript.Init ();
@@ -38,10 +43,81 @@ public class masterBehavior : MonoBehaviour {
 				cellScript.j = j;
 			}
 		}
+		currPlayer = 0;
+		foreach (playerBehavior playerScript in players) {
+			playerScript.grid = grid;
+		}
+		score = new int[players.Length];
+		for (int i = 0; i < score.Length; i++) {
+			score [i] = 0;
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		players [currPlayer].makeTurn ();
+		if (players[currPlayer].playedTurn){
+			players [currPlayer].playedTurn = false;
+			currPlayer = (currPlayer + 1) % 2;
+		}
+		calculateScore ();
+		if (checkGameOver ()) {
+			Debug.Log ("game is over!");
+			Debug.Break ();
+		}
+	}
+
+	private void calculateScore(){
+		int p0 = 0;
+		int p1 = 0;
+		for (int i = 0; i < grid.GetLength (0); i++) {
+			for (int j = 0; j < grid.GetLength (1); j++) {
+				cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+				int p0count = cellScript.dotCount [0];
+				int p1count = cellScript.dotCount [1];
+				int defaultCount = cellScript.dotCount [2];
+				int total = p0count + p1count + defaultCount;
+				MeshRenderer mr = cellScript.outline.GetComponent<MeshRenderer> ();
+				if (p0count > p1count) {
+					p0 += total;
+					mr.material.color = players [0].playerColor;
+				} else if (p1count > p0count) {
+					p1 += total;
+					mr.material.color = players [1].playerColor;
+				} else {
+					mr.material.color = cellScript.outlineOrigColor;
+				}
+			}
+		}
+		score [0] = p0;
+		score [1] = p1;
+		Debug.Log ("p0: " + p0 + " p1: " + p1);
+	}
+
+	private bool checkGameOver(){
+		int totalPiecesLeft = 0;
+		foreach (playerBehavior playerScript in players) {
+			Dictionary<string, int> pieceDict = playerScript.pieceDict;
+			totalPiecesLeft += pieceDict [playerScript.a_piece];
+			totalPiecesLeft += pieceDict [playerScript.b_piece];
+			totalPiecesLeft += pieceDict [playerScript.c_piece];
+		}
+		if (totalPiecesLeft == 0) {
+			return true;
+		}
+
+		bool atLeastOneCanGo = false;
+		foreach (playerBehavior playerScript in players) {
+			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo ();
+		}
+		return !atLeastOneCanGo;
+	}
+
+	void OnGUI(){
+		textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
+		string txt = "Player 1: " + score [0] + " Player 2: " + score [1];
+		textField.GetComponent<Text>().text = txt;
+//		GUI.Box (new Rect ((Screen.width)/2 -(Screen.width)/8,(Screen.height)/2-(Screen.height)/8,(Screen.width)/4,(Screen.height)/4), txt);
+		//pls someone figure out how to programmitacally center this so it also works with resizing screens
 	}
 }
