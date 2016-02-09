@@ -127,7 +127,7 @@ public class playerBehavior : MonoBehaviour {
 						color = Color.green;
 						useOrigDotColor = false;
 					} else {
-						color = Color.red;
+						color = Color.black;
 					}
 				}
 				cellGridScript.setColor (color);
