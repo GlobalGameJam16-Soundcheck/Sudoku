@@ -89,4 +89,8 @@ public class cellBehavior : MonoBehaviour {
 	public void setColor(Color color){
 		GetComponent<MeshRenderer> ().material.color = color;
 	}
+
+	public bool isOccupied(){
+		return (occupiedPlayer >= 0);
+	}
 }
