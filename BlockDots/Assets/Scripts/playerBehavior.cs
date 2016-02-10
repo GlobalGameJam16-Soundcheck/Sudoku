@@ -109,7 +109,14 @@ public class playerBehavior : MonoBehaviour {
 	private void shadowCells(){
 		cellBehavior cellGridScript;
 		for (int i = 0; i < grid.GetLength (0); i++) {
-			for (int 
+			for (int j = 0; j < grid.GetLength (1); j++) {
+				cellGridScript = grid [i, j].GetComponent<cellBehavior> ();
+				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn)) {
+					cellGridScript.setColor (Color.white);
+				} else {
+					cellGridScript.setColor (Color.red);
+				}
+			}
 		}
 	}
 
@@ -122,6 +129,7 @@ public class playerBehavior : MonoBehaviour {
 
 		//shadow other unplayable cells
 		shadowCells();
+		Debug.Break ();
 
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
