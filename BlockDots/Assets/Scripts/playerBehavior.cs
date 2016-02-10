@@ -55,6 +55,9 @@ public class playerBehavior : MonoBehaviour {
 	}
 
 	public bool canGo(){
+		if (pieceDict [a_piece] <= 0 && pieceDict [b_piece] <= 0 && pieceDict [c_piece] <= 0) {
+			return false;
+		}
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				bool canUseStar = false;

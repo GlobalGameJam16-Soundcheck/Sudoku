@@ -95,17 +95,6 @@ public class masterBehavior : MonoBehaviour {
 	}
 
 	private bool checkGameOver(){
-		int totalPiecesLeft = 0;
-		foreach (playerBehavior playerScript in players) {
-			Dictionary<string, int> pieceDict = playerScript.pieceDict;
-			totalPiecesLeft += pieceDict [playerScript.a_piece];
-			totalPiecesLeft += pieceDict [playerScript.b_piece];
-			totalPiecesLeft += pieceDict [playerScript.c_piece];
-		}
-		if (totalPiecesLeft == 0) {
-			return true;
-		}
-
 		bool atLeastOneCanGo = false;
 		foreach (playerBehavior playerScript in players) {
 			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo ();
