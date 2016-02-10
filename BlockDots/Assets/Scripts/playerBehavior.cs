@@ -33,6 +33,8 @@ public class playerBehavior : MonoBehaviour {
 	private bool firstTurn;
 	public bool playedTurn { get; set; }
 
+	public Color outlineColor;
+
 	// Use this for initialization
 	void Start () {
 		score = 0;
@@ -111,9 +113,13 @@ public class playerBehavior : MonoBehaviour {
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				cellGridScript = grid [i, j].GetComponent<cellBehavior> ();
-				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn) && !cellGridScript.isOccupied()
-					&& !(cellGridScript.i == grid.GetLength(0)/2 && cellGridScript.j == grid.GetLength(1)/2)) {
+				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn) ||
+				    (cellGridScript.i == grid.GetLength (0) / 2 && cellGridScript.j == grid.GetLength (1) / 2)) {
 					cellGridScript.setColor (Color.black);
+				} else if (i == hoverCelli && j == hoverCellj){
+					cellGridScript.setColor (playerColor);
+				} else {
+					cellGridScript.setColor (Color.white);
 				}
 			}
 		}

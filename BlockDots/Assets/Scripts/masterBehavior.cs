@@ -81,11 +81,13 @@ public class masterBehavior : MonoBehaviour {
 				Color color;
 				if (p0count > p1count) {
 					p0 += total;
-					color = new Color(players [0].playerColor.r, players [0].playerColor.g, players [0].playerColor.b, players [0].playerColor.a/2);
+//					color = new Color(players [0].playerColor.r, players [0].playerColor.g, players [0].playerColor.b, players [0].playerColor.a/2);
+					color = players[0].outlineColor;
 					mr.material.color = color;
 				} else if (p1count > p0count) {
 					p1 += total;
-					color = new Color(players [1].playerColor.r, players [1].playerColor.g, players [1].playerColor.b, players [1].playerColor.a/2);
+//					color = new Color(players [1].playerColor.r, players [1].playerColor.g, players [1].playerColor.b, players [1].playerColor.a/2);
+					color = players[1].outlineColor;
 					mr.material.color = color;
 				} else {
 					if (p0count == 0 && p1count == 0)
