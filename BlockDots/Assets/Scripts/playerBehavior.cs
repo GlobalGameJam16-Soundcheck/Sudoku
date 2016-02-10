@@ -111,10 +111,9 @@ public class playerBehavior : MonoBehaviour {
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				cellGridScript = grid [i, j].GetComponent<cellBehavior> ();
-				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn)) {
-					cellGridScript.setColor (Color.white);
-				} else {
-					cellGridScript.setColor (Color.red);
+				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn) && !cellGridScript.isOccupied()
+					&& !(cellGridScript.i == grid.GetLength(0)/2 && cellGridScript.j == grid.GetLength(1)/2)) {
+					cellGridScript.setColor (Color.black);
 				}
 			}
 		}
@@ -126,10 +125,6 @@ public class playerBehavior : MonoBehaviour {
 		//keep track of last knows 
 		Vector3 mousePos = new Vector3 (Input.mousePosition.x, Input.mousePosition.y, heldPiece.transform.position.z);
 		heldPiece.transform.position = Camera.main.ScreenToWorldPoint (mousePos);
-
-		//shadow other unplayable cells
-		shadowCells();
-		Debug.Break ();
 
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
@@ -161,6 +156,9 @@ public class playerBehavior : MonoBehaviour {
 				cellGridScript.hoverDot (player, playerColor, useOrigDotColor);
 			}
 		}
+
+		//shadow other unplayable cells
+		shadowCells();
 
 		//look at the held pieces iDir and jDir, call hoverDot on these cells as well
 		if (onGrid (hoverCelli, hoverCellj)) {
@@ -248,6 +246,16 @@ public class playerBehavior : MonoBehaviour {
 		}
 	}
 
+	private void unshadowCells(){
+		cellBehavior cellGridScript;
+		for (int i = 0; i < grid.GetLength (0); i++) {
+			for (int j = 0; j < grid.GetLength (1); j++) {
+				cellGridScript = grid [i, j].GetComponent<cellBehavior> ();
+				cellGridScript.setColor (cellGridScript.origColor);
+			}
+		}
+	}
+
 	private void release(){
 		holding = false;
 		if (heldPiece != null){
@@ -291,6 +299,7 @@ public class playerBehavior : MonoBehaviour {
 		hoverCelli = -1;
 		hoverCellj = -1;
 		heldPiece = null;
+		unshadowCells ();
 	}
 
 	private void checkClick(){
