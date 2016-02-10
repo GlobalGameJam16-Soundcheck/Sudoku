@@ -8,11 +8,11 @@ public class cellBehavior : MonoBehaviour {
 	public int occupiedPlayer { get; set; } //0 or 1 for player, -1 for free
 	public int i;
 	public int j;
-	public GameObject[] player0dots; //6 dots total per player
+	public GameObject[] player0dots; //8 dots total per player
 	public GameObject[] player1dots; 
 	public int[] dotCount { get; set; } //dotCount[0] == player 0's number of dots on this cell
 										//dotCount[1] == player 1's number of dots on this cell
-										//dotCount[2] == cell's defauly number of dots
+										//dotCount[2] == cell's default number of dots
 	private GameObject[][] playerDots;
 	public int dotCap { get; set; } //player x cant place anymore dots here if dotcap is reached for this player
 	public int defaultAmt;
