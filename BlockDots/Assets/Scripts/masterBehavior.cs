@@ -78,12 +78,15 @@ public class masterBehavior : MonoBehaviour {
 				int defaultCount = cellScript.dotCount [2];
 				int total = p0count + p1count + defaultCount;
 				MeshRenderer mr = cellScript.outline.GetComponent<MeshRenderer> ();
+				Color color;
 				if (p0count > p1count) {
 					p0 += total;
-					mr.material.color = players [0].playerColor;
+					color = new Color(players [0].playerColor.r, players [0].playerColor.g, players [0].playerColor.b, players [0].playerColor.a/2);
+					mr.material.color = color;
 				} else if (p1count > p0count) {
 					p1 += total;
-					mr.material.color = players [1].playerColor;
+					color = new Color(players [1].playerColor.r, players [1].playerColor.g, players [1].playerColor.b, players [1].playerColor.a/2);
+					mr.material.color = color;
 				} else {
 					if (p0count == 0 && p1count == 0)
 						mr.material.color = cellScript.outlineOrigColor;

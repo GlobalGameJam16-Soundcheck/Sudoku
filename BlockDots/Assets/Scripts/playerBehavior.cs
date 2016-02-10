@@ -106,12 +106,22 @@ public class playerBehavior : MonoBehaviour {
 		}
 	}
 
+	private void shadowCells(){
+		cellBehavior cellGridScript;
+		for (int i = 0; i < grid.GetLength (0); i++) {
+			for (int 
+		}
+	}
+
 	private void dragPiece(){
 		//raycast over cells and change their color to green if good (along with other cells that'd be good?)
 		//and light up cell dot with player color
 		//keep track of last knows 
 		Vector3 mousePos = new Vector3 (Input.mousePosition.x, Input.mousePosition.y, heldPiece.transform.position.z);
 		heldPiece.transform.position = Camera.main.ScreenToWorldPoint (mousePos);
+
+		//shadow other unplayable cells
+		shadowCells();
 
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
@@ -141,7 +151,6 @@ public class playerBehavior : MonoBehaviour {
 				}
 				cellGridScript.setColor (color);
 				cellGridScript.hoverDot (player, playerColor, useOrigDotColor);
-
 			}
 		}
 
