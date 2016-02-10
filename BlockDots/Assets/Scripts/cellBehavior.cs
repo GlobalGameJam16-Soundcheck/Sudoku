@@ -19,6 +19,7 @@ public class cellBehavior : MonoBehaviour {
 	public Color origColor { get; set; }
 	public GameObject outline;
 	public Color outlineOrigColor { get; set; }
+	public Color tiedColor;
 
 	// Use this for initialization
 	public void Init () {

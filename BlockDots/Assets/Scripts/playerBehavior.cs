@@ -8,9 +8,11 @@ public class playerBehavior : MonoBehaviour {
 	public int B_amt; //2
 	public int C_amt; //3
 	public int star_amt; //1
+	public int star_movable_amt;//1
 	public int player;//am i 0 or 1?
 	public Color playerColor;
 	public string star_piece; //these are the tags
+	public string star_piece_movable;
 	public string a_piece;
 	public string b_piece;
 	public string c_piece;
@@ -18,7 +20,8 @@ public class playerBehavior : MonoBehaviour {
 	public int score { get; set; } //gameMaster might use this, not this class
 	private bool holding;
 	private GameObject heldPiece;
-	private bool clickedStar;
+	private bool clickedStar; //for toggling
+//	private bool clickedMovableStar;//for star piece
 	private LayerMask pieceLayer;
 	private LayerMask cellLayer;
 	public Dictionary<string, int> pieceDict { get; set; } //tags are keys, amts are values
@@ -43,6 +46,7 @@ public class playerBehavior : MonoBehaviour {
 		pieceDict.Add (c_piece, C_amt);
 		pieceDict.Add (b_piece, B_amt);
 		pieceDict.Add (a_piece, A_amt);
+		pieceDict.Add (star_piece_movable, star_movable_amt);
 		hoverCelli = -1;
 		hoverCellj = -1;
 		firstTurn = true;
@@ -52,16 +56,18 @@ public class playerBehavior : MonoBehaviour {
 	void OnMouseUp(){
 		if (clickedStar)
 			clickedStar = false;
+//		if (clickedMovableStar)
+//			clickedMovableStar = false;
 	}
 
 	public bool canGo(){
-		if (pieceDict [a_piece] <= 0 && pieceDict [b_piece] <= 0 && pieceDict [c_piece] <= 0) {
+		if (pieceDict [a_piece] <= 0 && pieceDict [b_piece] <= 0 && pieceDict [c_piece] <= 0 && pieceDict[star_piece_movable] <= 0) {
 			return false;
 		}
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				bool canUseStar = false;
-				if (pieceDict [star_piece] > 0) {
+				if (pieceDict [star_piece] > 0 || pieceDict[star_piece_movable] > 0) {
 					canUseStar = true;
 				}
 				if (grid [i, j].GetComponent<cellBehavior> ().canBePlayedOn (player, canUseStar, firstTurn)) {
@@ -126,8 +132,8 @@ public class playerBehavior : MonoBehaviour {
 				Color color = cellGridScript.origColor;
 				bool useOrigDotColor = true;
 				if (i == hoverCelli && j == hoverCellj) {
-					if (cellGridScript.canBePlayedOn (player, clickedStar, firstTurn)) {
-						color = Color.green;
+					if (cellGridScript.canBePlayedOn (player, clickedAStar(), firstTurn)) {
+						color = playerColor;
 						useOrigDotColor = false;
 					} else {
 						color = Color.black;
@@ -142,9 +148,13 @@ public class playerBehavior : MonoBehaviour {
 		//look at the held pieces iDir and jDir, call hoverDot on these cells as well
 		if (onGrid (hoverCelli, hoverCellj)) {
 			cellGridScript = grid [hoverCelli, hoverCellj].GetComponent<cellBehavior> ();
-			if (cellGridScript.canBePlayedOn(player, clickedStar, firstTurn))
-				updateOrHoverNeighborDots (true);
+			if (cellGridScript.canBePlayedOn(player, clickedAStar(), firstTurn))
+				updateOrHoverNeighborDots (true, false);
 		}
+	}
+
+	private bool clickedAStar(){
+		return (clickedStar || (heldPiece != null && heldPiece.CompareTag(star_piece_movable)));
 	}
 
 	private bool onGrid(int i, int j){
@@ -153,42 +163,70 @@ public class playerBehavior : MonoBehaviour {
 			(i != (grid.GetLength (0))/2 || j != (grid.GetLength (1))/2));
 	}
 
-	private void updateOrHoverNeighborDots(bool hover){
-		//look at the held pieces iDir and jDir, call hoverDot on these cells as well
+	private void checkNewCellsForUpdateDots (int newCelli, int newCellj, bool hover, bool reset){
 		cellBehavior cellGridScript;
+		if (onGrid (newCelli, newCellj)) {
+			cellGridScript = grid [newCelli, newCellj].GetComponent<cellBehavior> ();
+			if (hover) {
+				cellGridScript.hoverDot (player, playerColor, false);
+				cellGridScript.setColor (playerColor);
+			} else
+				cellGridScript.updateDots (player, playerColor);
+			if (reset)
+				cellGridScript.setColor (cellGridScript.origColor);
+		}
+	}
+
+	private void updateOrHoverNeighborDots(bool hover, bool reset){
+		//look at the held pieces iDir and jDir, call hoverDot on these cells as well
 		int count = 0;
 		int iDirLen = heldPiece.GetComponent<pieceBehavior> ().iDirLen;
 		int jDirLen = heldPiece.GetComponent<pieceBehavior> ().jDirLen;
+		int iDirLenStar = heldPiece.GetComponent<pieceBehavior> ().iDirLenStar;
+		int jDirLenStar = heldPiece.GetComponent<pieceBehavior> ().jDirLenStar;
 		int newCelli;
 		int newCellj;
-		while ((count < Mathf.Abs (iDirLen) || count < Mathf.Abs (jDirLen)) && (hoverCelli >= 0 && hoverCellj >= 0)) {
-			count++;
-			newCelli = hoverCelli;
-			newCellj = hoverCellj;
-			if (!(iDirLen == 0))
-				newCelli = hoverCelli + ((int)Mathf.Sign((float)iDirLen)) * count;
-			if (!(jDirLen == 0))
-				newCellj = hoverCellj + ((int)Mathf.Sign((float)jDirLen)) * count;
-			if (onGrid (newCelli, newCellj)) {
-				cellGridScript = grid [newCelli, newCellj].GetComponent<cellBehavior> ();
-				if (hover)
-					cellGridScript.hoverDot (player, playerColor, false);
-				else
-					cellGridScript.updateDots (player, playerColor);
-			}
+		if (iDirLenStar == 0 && jDirLenStar == 0) {//handle these normally
+			while ((count < Mathf.Abs (iDirLen) || count < Mathf.Abs (jDirLen)) && (hoverCelli >= 0 && hoverCellj >= 0)) {
+				count++;
+				newCelli = hoverCelli;
+				newCellj = hoverCellj;
+				if (!(iDirLen == 0))
+					newCelli = hoverCelli + ((int)Mathf.Sign ((float)iDirLen)) * count;
+				if (!(jDirLen == 0))
+					newCellj = hoverCellj + ((int)Mathf.Sign ((float)jDirLen)) * count;
+				checkNewCellsForUpdateDots (newCelli, newCellj, hover, reset);
 
-			newCelli = hoverCelli;
-			newCellj = hoverCellj;
-			if (!(iDirLen == 0))
-				newCelli = hoverCelli - ((int)Mathf.Sign((float)iDirLen)) * count;
-			if (!(jDirLen == 0))
-				newCellj = hoverCellj - ((int)Mathf.Sign((float)jDirLen)) * count;
-			if (onGrid (newCelli, newCellj)) {
-				cellGridScript = grid [newCelli, newCellj].GetComponent<cellBehavior> ();
-				if (hover)
-					cellGridScript.hoverDot (player, playerColor, false);
-				else
-					cellGridScript.updateDots (player, playerColor);
+
+				newCelli = hoverCelli;
+				newCellj = hoverCellj;
+				if (!(iDirLen == 0))
+					newCelli = hoverCelli - ((int)Mathf.Sign ((float)iDirLen)) * count;
+				if (!(jDirLen == 0))
+					newCellj = hoverCellj - ((int)Mathf.Sign ((float)jDirLen)) * count;
+				checkNewCellsForUpdateDots (newCelli, newCellj, hover, reset);
+			}
+		} else {
+			//using a star, check up down, left right
+			while ((count < Mathf.Abs (iDirLenStar) + Mathf.Abs(jDirLenStar)) && (hoverCelli >= 0 && hoverCellj >= 0)){
+				count++;
+				newCelli = hoverCelli;
+				newCellj = hoverCellj;
+				if (count <= Mathf.Abs (iDirLenStar)) {
+					newCelli = hoverCelli + count * ((int)Mathf.Sign ((float)iDirLenStar));
+				} else {
+					newCellj = hoverCellj + (count - Mathf.Abs(iDirLenStar)) * ((int)Mathf.Sign ((float)jDirLenStar));
+				}
+				checkNewCellsForUpdateDots (newCelli, newCellj, hover, reset);
+
+				newCelli = hoverCelli;
+				newCellj = hoverCellj;
+				if (count <= Mathf.Abs (iDirLenStar)) {
+					newCelli = hoverCelli - count * ((int)Mathf.Sign ((float)iDirLenStar));
+				} else {
+					newCellj = hoverCellj - (count - Mathf.Abs(iDirLenStar)) * ((int)Mathf.Sign ((float)jDirLenStar));
+				}
+				checkNewCellsForUpdateDots (newCelli, newCellj, hover, reset);
 			}
 		}
 	}
@@ -205,7 +243,7 @@ public class playerBehavior : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, cellLayer)) { //hovering over this cell
 				cellBehavior cellScript = hit.collider.gameObject.GetComponent<cellBehavior> ();
-				if (cellScript.canBePlayedOn (player, clickedStar, firstTurn)) {
+				if (cellScript.canBePlayedOn (player, clickedAStar(), firstTurn)) {
 					firstTurn = false;
 					hoverCelli = cellScript.i;
 					hoverCellj = cellScript.j;
@@ -214,7 +252,7 @@ public class playerBehavior : MonoBehaviour {
 						mat = heldPiece.GetComponent<pieceBehavior> ().matStar;
 					cellScript.makePlacement (player, mat);
 					cellScript.updateDots (player, playerColor);
-					updateOrHoverNeighborDots (false);
+					updateOrHoverNeighborDots (false, true);
 					Debug.Log ("touching cell + " + cellScript.i + " " + cellScript.j);
 					if (clickedStar) {
 						pieceDict [star_piece]--;
@@ -246,7 +284,11 @@ public class playerBehavior : MonoBehaviour {
 			GameObject potential = hit.collider.gameObject;
 			if (potential.GetComponent<pieceBehavior> ().player == player) {
 				Debug.Log ("that's my piece! " + potential.name);
-				if (potential.CompareTag (star_piece)) {
+//				if (potential.CompareTag(star_piece_movable)) { //this is for the actual star being used
+//					Debug.Log("Moveable star");
+//					clickedMovableStar = true;
+//				} else 
+				if (potential.CompareTag (star_piece)) { //this is for toggling star
 					Debug.Log ("star was clicked!");
 					if (pieceDict [star_piece] > 0) {
 						Debug.Log ("still can use a star!");

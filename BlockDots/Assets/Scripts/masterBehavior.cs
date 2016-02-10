@@ -85,7 +85,10 @@ public class masterBehavior : MonoBehaviour {
 					p1 += total;
 					mr.material.color = players [1].playerColor;
 				} else {
-					mr.material.color = cellScript.outlineOrigColor;
+					if (p0count == 0 && p1count == 0)
+						mr.material.color = cellScript.outlineOrigColor;
+					else
+						mr.material.color = cellScript.tiedColor;
 				}
 			}
 		}
