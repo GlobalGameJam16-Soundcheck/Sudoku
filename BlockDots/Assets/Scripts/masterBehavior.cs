@@ -15,6 +15,7 @@ public class masterBehavior : MonoBehaviour {
 	public float zDist;
 
 	public GameObject textField;
+	public GameObject[] inventoryList;
 
 	// Use this for initialization
 	void Start () {
@@ -114,7 +115,32 @@ public class masterBehavior : MonoBehaviour {
 		//textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
 		string txt = "Player 1: " + score [0] + " Player 2: " + score [1];
 		textField.GetComponent<Text>().text = txt;
-//		GUI.Box (new Rect ((Screen.width)/2 -(Screen.width)/8,(Screen.height)/2-(Screen.height)/8,(Screen.width)/4,(Screen.height)/4), txt);
-		//pls someone figure out how to programmitacally center this so it also works with resizing screens
+		//update inventory
+		for (int i = 0; i < inventoryList.Length; i++) { //[p0_A, p0_B, p0_c, p0_star, p1_A, p1_B, p1_C, p1_star]
+			int player = 0;
+			int j = i;
+			if (i >= inventoryList.Length / 2) {
+				player = 1;
+				j -= inventoryList.Length / 2;
+			}
+			int amtLeft = players [player].pieceDict [convertToTag (j)];
+			inventoryList [i].GetComponent<Text> ().text = amtLeft.ToString ();
+			if (amtLeft <= 0) {
+				inventoryList [i].GetComponent<Text> ().color = Color.black;
+			}
+		}
+	}
+
+	string convertToTag(int index){
+		if (index == 0) {
+			return players [0].a_piece;
+		} else if (index == 1) {
+			return players [0].b_piece;
+		} else if (index == 2) {
+			return players [0].c_piece;
+		} else if (index == 3) {
+			return players [0].star_piece_movable;
+		}
+		return "";
 	}
 }

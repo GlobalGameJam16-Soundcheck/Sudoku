@@ -347,11 +347,13 @@ public class playerBehavior : MonoBehaviour {
 						Vector3 pos = new Vector3 (potential.transform.position.x, potential.transform.position.y, 
 							              potential.transform.position.z - 1f);
 						heldPiece = (GameObject)Instantiate ((Object)potential, pos, potential.transform.rotation);
+						heldPiece.transform.localScale *= 2;
 						pickUp.Play ();
 						Debug.Log ("now holding + " + heldPiece.name);
 						holding = true;
 					} else {
 						Debug.Log ("cannot use this piece anymore");
+						putDownBad.Play ();
 					}
 				}
 			} else {
