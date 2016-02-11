@@ -111,7 +111,7 @@ public class masterBehavior : MonoBehaviour {
 	}
 
 	void OnGUI(){
-		textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
+		//textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
 		string txt = "Player 1: " + score [0] + " Player 2: " + score [1];
 		textField.GetComponent<Text>().text = txt;
 //		GUI.Box (new Rect ((Screen.width)/2 -(Screen.width)/8,(Screen.height)/2-(Screen.height)/8,(Screen.width)/4,(Screen.height)/4), txt);
