@@ -84,6 +84,7 @@ public class cellBehavior : MonoBehaviour {
 			occupiedPlayer = player;
 			transform.GetComponent<MeshRenderer> ().material = mat;
 		}
+		origColor = Color.white;
 	}
 
 	public void setColor(Color color){

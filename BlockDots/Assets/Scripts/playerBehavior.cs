@@ -35,6 +35,10 @@ public class playerBehavior : MonoBehaviour {
 
 	public Color outlineColor;
 
+	private AudioSource putDownBad;
+	private AudioSource putDownGood;
+	private AudioSource pickUp;
+
 	// Use this for initialization
 	void Start () {
 		score = 0;
@@ -53,6 +57,10 @@ public class playerBehavior : MonoBehaviour {
 		hoverCellj = -1;
 		firstTurn = true;
 		playedTurn = false;
+		AudioSource[] A = this.GetComponents<AudioSource> ();
+		pickUp = A [1];
+		putDownGood = A [2];
+		putDownBad = A [0];
 	}
 
 	void OnMouseUp(){
@@ -159,7 +167,7 @@ public class playerBehavior : MonoBehaviour {
 					}
 				}
 				cellGridScript.setColor (color);
-				cellGridScript.hoverDot (player, playerColor, useOrigDotColor);
+				cellGridScript.hoverDot (player, outlineColor, useOrigDotColor);
 			}
 		}
 
@@ -189,10 +197,10 @@ public class playerBehavior : MonoBehaviour {
 		if (onGrid (newCelli, newCellj)) {
 			cellGridScript = grid [newCelli, newCellj].GetComponent<cellBehavior> ();
 			if (hover) {
-				cellGridScript.hoverDot (player, playerColor, false);
+				cellGridScript.hoverDot (player, outlineColor, false);
 				cellGridScript.setColor (playerColor);
 			} else
-				cellGridScript.updateDots (player, playerColor);
+				cellGridScript.updateDots (player, outlineColor);
 			if (reset)
 				cellGridScript.setColor (cellGridScript.origColor);
 		}
@@ -274,7 +282,7 @@ public class playerBehavior : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, cellLayer)) { //hovering over this cell
 				cellBehavior cellScript = hit.collider.gameObject.GetComponent<cellBehavior> ();
-				if (cellScript.canBePlayedOn (player, clickedAStar(), firstTurn)) {
+				if (cellScript.canBePlayedOn (player, clickedAStar (), firstTurn)) {
 					firstTurn = false;
 					hoverCelli = cellScript.i;
 					hoverCellj = cellScript.j;
@@ -282,7 +290,7 @@ public class playerBehavior : MonoBehaviour {
 					if (clickedStar)
 						mat = heldPiece.GetComponent<pieceBehavior> ().matStar;
 					cellScript.makePlacement (player, mat);
-					cellScript.updateDots (player, playerColor);
+					cellScript.updateDots (player, outlineColor);
 					updateOrHoverNeighborDots (false, true);
 					Debug.Log ("touching cell + " + cellScript.i + " " + cellScript.j);
 					if (clickedStar) {
@@ -292,9 +300,14 @@ public class playerBehavior : MonoBehaviour {
 					pieceDict [heldPiece.tag]--;
 					Debug.Log (heldPiece.tag + " has this much left! " + pieceDict [heldPiece.tag]);
 					playedTurn = true;
+					putDownGood.Play ();
 				} else {
 					Debug.Log ("cannot play here!");
+					putDownBad.Play ();
 				}
+			} else {
+				Debug.Log ("not on a cell");
+				putDownBad.Play ();
 			}
 			Destroy((Object)heldPiece.gameObject);
 		}
@@ -316,10 +329,6 @@ public class playerBehavior : MonoBehaviour {
 			GameObject potential = hit.collider.gameObject;
 			if (potential.GetComponent<pieceBehavior> ().player == player) {
 				Debug.Log ("that's my piece! " + potential.name);
-//				if (potential.CompareTag(star_piece_movable)) { //this is for the actual star being used
-//					Debug.Log("Moveable star");
-//					clickedMovableStar = true;
-//				} else 
 				if (potential.CompareTag (star_piece)) { //this is for toggling star
 					Debug.Log ("star was clicked!");
 					if (pieceDict [star_piece] > 0) {
@@ -331,20 +340,25 @@ public class playerBehavior : MonoBehaviour {
 						Debug.Log ("cannot use this star anymore");
 					}
 				} else {
-					//clicked on a regular piece
-					if (pieceDict[potential.gameObject.tag] > 0){
+					//clicked on a regular piece or new star mechanic piece
+					if (pieceDict [potential.gameObject.tag] > 0) {
 						//can use it
 //						heldPiece = potential;
-						Vector3 pos = new Vector3(potential.transform.position.x, potential.transform.position.y, 
-																				  potential.transform.position.z - 1f);
-						heldPiece = (GameObject)Instantiate((Object)potential, pos, potential.transform.rotation);
+						Vector3 pos = new Vector3 (potential.transform.position.x, potential.transform.position.y, 
+							              potential.transform.position.z - 1f);
+						heldPiece = (GameObject)Instantiate ((Object)potential, pos, potential.transform.rotation);
+						pickUp.Play ();
 						Debug.Log ("now holding + " + heldPiece.name);
 						holding = true;
 					} else {
 						Debug.Log ("cannot use this piece anymore");
 					}
 				}
+			} else {
+				putDownBad.Play ();
 			}
+		} else {
+			putDownBad.Play ();
 		}
 	}
 }

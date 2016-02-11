@@ -36,6 +36,7 @@ public class masterBehavior : MonoBehaviour {
 				}
 				Vector3 pos = new Vector3 (transform.position.x + 1.1f*j*transform.localScale.x - 1.5f, 
 										   transform.position.y - 1.1f*i*transform.localScale.y, zDist);
+//				Quaternion rot = Quaternion.AngleAxis (180f, transform.up);
 				grid[i,j] = (GameObject)Instantiate(cellPrefabs[whichPrefab], pos, transform.rotation);
 				cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
 				cellScript.Init ();
@@ -99,7 +100,6 @@ public class masterBehavior : MonoBehaviour {
 		}
 		score [0] = p0;
 		score [1] = p1;
-		Debug.Log ("p0: " + p0 + " p1: " + p1);
 	}
 
 	private bool checkGameOver(){
