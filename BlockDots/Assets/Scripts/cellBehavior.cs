@@ -65,9 +65,9 @@ public class cellBehavior : MonoBehaviour {
 			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
 			if (!dotScript.coloredIn) {
 				if (!orig) {
-					dot.GetComponent<MeshRenderer> ().material.color = color;
+					dotScript.setDotColor (color);
 				} else {
-					dot.GetComponent<MeshRenderer> ().material.color = dotScript.origColor;
+					dotScript.setDotColor (dotScript.origColor);
 				}
 			}
 		}
@@ -78,7 +78,7 @@ public class cellBehavior : MonoBehaviour {
 			GameObject dot = playerDots[player][dotCount[player]];
 			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
 			if (!dotScript.coloredIn) {
-				dot.GetComponent<MeshRenderer> ().material.color = color;
+				dotScript.setDotColor (color);
 				dotScript.coloredIn = true;
 				dotCount[player]++;
 			}

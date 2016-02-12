@@ -10,4 +10,8 @@ public class dotBehavior : MonoBehaviour {
 		coloredIn = false;
 		origColor = GetComponent<MeshRenderer> ().material.color;
 	}
+
+	public void setDotColor(Color color){
+		GetComponent<MeshRenderer> ().material.color = color;
+	}
 }

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class masterBehavior : MonoBehaviour {
 
+	//p0 is uptown - blue, p1 is empire - red
+
 	public GameObject[] cellPrefabs; //0 is 0 points, 1 is 1 pt, 2 is 2 pts, 3 is pts, 4 is black mid square
 	public playerBehavior[] players;
 	private int[] score;
@@ -15,7 +17,9 @@ public class masterBehavior : MonoBehaviour {
 	public float zDist;
 
 	public GameObject[] textFields;
-	public GameObject[] inventoryList;
+	public GameObject[] inventoryList; //text field for pieces, from i = 0 to len/2 is p0, rest is p1
+
+	public GameObject[] pieces; //pieces[0] = array of p0 pieces, pieces[1] = array of p1's pieces
 
 	// Use this for initialization
 	void Start () {
@@ -57,6 +61,7 @@ public class masterBehavior : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		updatePiecesColor ();
 		players [currPlayer].makeTurn ();
 		if (players[currPlayer].playedTurn){
 			players [currPlayer].playedTurn = false;
@@ -66,6 +71,26 @@ public class masterBehavior : MonoBehaviour {
 		if (checkGameOver ()) {
 			Debug.Log ("game is over!");
 			Debug.Break ();
+		}
+	}
+
+	void updatePiecesColor(){
+		bool setAllToGray;
+		for (int i = 0; i < pieces.Length; i++) {
+			if (!players [i].canGo ()) {
+				setAllToGray = true;
+			} else {
+				setAllToGray = false;
+			}
+			Debug.Log ("inside for loop");
+			bool myTurn = (i == currPlayer);
+			foreach (Transform piece in pieces[i].transform) {
+				if (setAllToGray || !(myTurn && players [i].pieceDict [piece.tag] > 0)){
+					piece.GetComponent<SpriteRenderer> ().color = Color.gray;
+				} else {
+					piece.GetComponent<SpriteRenderer> ().color = piece.GetComponent<pieceBehavior> ().origColor;
+				}
+			}
 		}
 	}
 
@@ -113,8 +138,8 @@ public class masterBehavior : MonoBehaviour {
 
 	void OnGUI(){
 		//textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
-		string txt0 = "Uptown: " + score [0];
-		string txt1 = "Empire: " + score [1];
+		string txt0 = "UPTOWN: " + score [0];
+		string txt1 = "EMPIRE: " + score [1];
 		textFields[0].GetComponent<Text>().text = txt0;
 		textFields[1].GetComponent<Text>().text = txt1;
 		//update inventory
@@ -128,7 +153,7 @@ public class masterBehavior : MonoBehaviour {
 			int amtLeft = players [player].pieceDict [convertToTag (j)];
 			inventoryList [i].GetComponent<Text> ().text = amtLeft.ToString ();
 			if (amtLeft <= 0) {
-				inventoryList [i].GetComponent<Text> ().color = Color.black;
+				inventoryList [i].GetComponent<Text> ().color = Color.gray;
 			}
 		}
 	}

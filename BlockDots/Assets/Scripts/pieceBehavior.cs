@@ -11,6 +11,10 @@ public class pieceBehavior : MonoBehaviour {
 	public Material mat;
 	public Material matStar;
 	public Sprite hoverSprite;
+	public Color origColor;
 
+	void Start(){
+		origColor = GetComponent<SpriteRenderer> ().color;
+	}
 
 }
