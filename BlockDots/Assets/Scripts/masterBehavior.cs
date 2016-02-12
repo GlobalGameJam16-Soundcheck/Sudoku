@@ -90,16 +90,22 @@ public class masterBehavior : MonoBehaviour {
 	void updatePiecesColor(){
 		bool setAllToGray;
 		for (int i = 0; i < pieces.Length; i++) {
-			if (!players [i].canGo ()) {
+			if (!players [i].canGo (true)) {
 				setAllToGray = true;
 			} else {
 				setAllToGray = false;
 			}
 			bool myTurn = (i == currPlayer);
 			foreach (Transform piece in pieces[i].transform) {
-				if (setAllToGray || !(myTurn && players [i].pieceDict [piece.tag] > 0)){
+				bool nonStarPieceTurnedGray = false;
+				if (!piece.gameObject.CompareTag (players [currPlayer].star_piece_movable) && 
+					!players [currPlayer].canGo (false) && myTurn) {
 					piece.GetComponent<SpriteRenderer> ().color = Color.gray;
-				} else {
+					nonStarPieceTurnedGray = true;
+				}
+				if (setAllToGray || !myTurn || players [i].pieceDict [piece.tag] <= 0){
+					piece.GetComponent<SpriteRenderer> ().color = Color.gray;
+				} else if (!nonStarPieceTurnedGray) {
 					piece.GetComponent<SpriteRenderer> ().color = piece.GetComponent<pieceBehavior> ().origColor;
 				}
 			}
@@ -143,7 +149,7 @@ public class masterBehavior : MonoBehaviour {
 	private bool checkGameOver(){
 		bool atLeastOneCanGo = false;
 		foreach (playerBehavior playerScript in players) {
-			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo ();
+			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo (true);
 		}
 		return !atLeastOneCanGo;
 	}

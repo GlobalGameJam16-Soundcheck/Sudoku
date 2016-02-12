@@ -43,14 +43,14 @@ public class cellBehavior : MonoBehaviour {
 		}
 		if (dotCount [player] > 0) {
 			//player has a dot here so he can play
-//			Debug.Log ("2");
+//			Debug.Log ("2, i: " + i + " j: " + j + " player: " + player);
 			return true;
 		} else if (firstTurn) {
 //			Debug.Log ("3");
 			return true;
 		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
 			//used a star so can play on unoccupied cell with at least one dot of other player but less than cap
-//			Debug.Log ("4");
+//			Debug.Log ("4, i: " + i + " j: " + j + " player: " + player);
 			return true;
 		} else {
 //			Debug.Log ("5");

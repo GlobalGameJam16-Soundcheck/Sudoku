@@ -75,14 +75,14 @@ public class playerBehavior : MonoBehaviour {
 //			clickedMovableStar = false;
 	}
 
-	public bool canGo(){
+	public bool canGo(bool checkStarToo){
 		if (pieceDict [a_piece] <= 0 && pieceDict [b_piece] <= 0 && pieceDict [c_piece] <= 0 && pieceDict[star_piece_movable] <= 0) {
 			return false;
 		}
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				bool canUseStar = false;
-				if (pieceDict [star_piece] > 0 || pieceDict[star_piece_movable] > 0) {
+				if (checkStarToo && (pieceDict [star_piece] > 0 || pieceDict[star_piece_movable] > 0)) {
 					canUseStar = true;
 				}
 				if (grid [i, j].GetComponent<cellBehavior> ().canBePlayedOn (player, canUseStar, firstTurn)) {
@@ -90,6 +90,7 @@ public class playerBehavior : MonoBehaviour {
 				}
 			}
 		}
+		Debug.Log (this.name + " can't go");
 		return false;
 	}
 	
@@ -104,7 +105,7 @@ public class playerBehavior : MonoBehaviour {
 
 		//if no spots to go, playedTurn = true;
 		if (!gameOver) {
-			if (!canGo ()) {
+			if (!canGo (true)) {
 				Debug.Log ("cannot go but other player can");
 				playedTurn = true;
 			}
