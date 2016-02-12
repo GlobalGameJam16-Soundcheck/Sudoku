@@ -82,7 +82,6 @@ public class masterBehavior : MonoBehaviour {
 			} else {
 				setAllToGray = false;
 			}
-			Debug.Log ("inside for loop");
 			bool myTurn = (i == currPlayer);
 			foreach (Transform piece in pieces[i].transform) {
 				if (setAllToGray || !(myTurn && players [i].pieceDict [piece.tag] > 0)){

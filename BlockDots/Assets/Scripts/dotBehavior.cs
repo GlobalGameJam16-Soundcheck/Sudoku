@@ -8,10 +8,10 @@ public class dotBehavior : MonoBehaviour {
 
 	void Start(){
 		coloredIn = false;
-		origColor = GetComponent<MeshRenderer> ().material.color;
+		origColor = GetComponent<SpriteRenderer> ().material.color;
 	}
 
 	public void setDotColor(Color color){
-		GetComponent<MeshRenderer> ().material.color = color;
+		GetComponent<SpriteRenderer> ().material.color = color;
 	}
 }

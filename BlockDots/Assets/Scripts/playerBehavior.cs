@@ -35,6 +35,7 @@ public class playerBehavior : MonoBehaviour {
 	public bool playedTurn { get; set; }
 
 	public Color outlineColor;
+	public Color dotColor; //this is for the barrels/aka dots
 
 	private AudioSource putDownBad;
 	private AudioSource putDownGood;
@@ -172,7 +173,7 @@ public class playerBehavior : MonoBehaviour {
 					}
 				}
 				cellGridScript.setColor (color);
-				cellGridScript.hoverDot (player, outlineColor, useOrigDotColor);
+				cellGridScript.hoverDot (player, dotColor, useOrigDotColor);
 			}
 		}
 
@@ -204,10 +205,10 @@ public class playerBehavior : MonoBehaviour {
 		if (onGrid (newCelli, newCellj)) {
 			cellGridScript = grid [newCelli, newCellj].GetComponent<cellBehavior> ();
 			if (hover) {
-				cellGridScript.hoverDot (player, outlineColor, false);
+				cellGridScript.hoverDot (player, dotColor, false);
 				cellGridScript.setColor (playerColor);
 			} else
-				cellGridScript.updateDots (player, outlineColor);
+				cellGridScript.updateDots (player, dotColor);
 			if (reset)
 				cellGridScript.setColor (cellGridScript.origColor);
 		}
@@ -299,7 +300,7 @@ public class playerBehavior : MonoBehaviour {
 					if (clickedStar)
 						mat = heldPiece.GetComponent<pieceBehavior> ().matStar;
 					cellScript.makePlacement (player, mat);
-					cellScript.updateDots (player, outlineColor);
+					cellScript.updateDots (player, dotColor);
 					updateOrHoverNeighborDots (false, true);
 					Debug.Log ("touching cell + " + cellScript.i + " " + cellScript.j);
 					if (clickedStar) {
