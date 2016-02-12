@@ -13,6 +13,7 @@ public class playerBehavior : MonoBehaviour {
 	public Color playerColor;
 	public string star_piece; //these are the tags
 	public string star_piece_movable;
+	public GameObject origStarPiece;
 	public string a_piece;
 	public string b_piece;
 	public string c_piece;
@@ -123,7 +124,11 @@ public class playerBehavior : MonoBehaviour {
 				cellGridScript = grid [i, j].GetComponent<cellBehavior> ();
 				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn) ||
 				    (cellGridScript.i == grid.GetLength (0) / 2 && cellGridScript.j == grid.GetLength (1) / 2)) {
-					cellGridScript.setColor (Color.black);
+					if (!cellGridScript.isOccupied ()) {
+						cellGridScript.setColor (Color.black);
+					} else {
+						cellGridScript.setColor (new Color(64/255f, 64/255f, 64/255f, 1f)); //dark gray
+					}
 				} else if (i == hoverCelli && j == hoverCellj){
 					cellGridScript.setColor (playerColor);
 				} else {
@@ -183,7 +188,9 @@ public class playerBehavior : MonoBehaviour {
 	}
 
 	private bool clickedAStar(){
-		return (clickedStar || (heldPiece != null && heldPiece.CompareTag(star_piece_movable)));
+		bool ret = (clickedStar || (heldPiece != null && heldPiece.CompareTag(star_piece_movable)));
+//		Debug.Log ("clicked a star!: " + ret);
+		return ret;
 	}
 
 	private bool onGrid(int i, int j){
@@ -282,7 +289,9 @@ public class playerBehavior : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, cellLayer)) { //hovering over this cell
 				cellBehavior cellScript = hit.collider.gameObject.GetComponent<cellBehavior> ();
-				if (cellScript.canBePlayedOn (player, clickedAStar (), firstTurn)) {
+				bool canPlay = cellScript.canBePlayedOn (player, clickedAStar (), firstTurn);
+//				Debug.Log ("canPlay: " + canPlay);
+				if (canPlay) {
 					firstTurn = false;
 					hoverCelli = cellScript.i;
 					hoverCellj = cellScript.j;
@@ -299,7 +308,13 @@ public class playerBehavior : MonoBehaviour {
 					}
 					pieceDict [heldPiece.tag]--;
 					Debug.Log (heldPiece.tag + " has this much left! " + pieceDict [heldPiece.tag]);
+					if (heldPiece.CompareTag(star_piece_movable)) {
+						Transform lightTransform = origStarPiece.transform.GetChild (0);
+						lightTransform.GetComponent<Light> ().color = Color.black;
+					}
 					playedTurn = true;
+					Debug.Log ("played turn");
+//					Debug.Break ();
 					putDownGood.Play ();
 				} else {
 					Debug.Log ("cannot play here!");
@@ -348,6 +363,9 @@ public class playerBehavior : MonoBehaviour {
 							              potential.transform.position.z - 1f);
 						heldPiece = (GameObject)Instantiate ((Object)potential, pos, potential.transform.rotation);
 						heldPiece.transform.localScale *= 2;
+						if (heldPiece.GetComponent<pieceBehavior> ().hoverSprite != null){
+							heldPiece.GetComponent<SpriteRenderer> ().sprite = heldPiece.GetComponent<pieceBehavior> ().hoverSprite;
+						}
 						pickUp.Play ();
 						Debug.Log ("now holding + " + heldPiece.name);
 						holding = true;

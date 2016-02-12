@@ -37,17 +37,23 @@ public class cellBehavior : MonoBehaviour {
 	}
 
 	public bool canBePlayedOn(int player, bool star, bool firstTurn){
-		if (occupiedPlayer >= 0 || dotCount[player] >= dotCap)
+		if (occupiedPlayer >= 0 || dotCount [player] >= dotCap) {
+//			Debug.Log ("1");
 			return false;
+		}
 		if (dotCount [player] > 0) {
 			//player has a dot here so he can play
+//			Debug.Log ("2");
 			return true;
 		} else if (firstTurn) {
+//			Debug.Log ("3");
 			return true;
 		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
 			//used a star so can play on unoccupied cell with at least one dot of other player but less than cap
+//			Debug.Log ("4");
 			return true;
 		} else {
+//			Debug.Log ("5");
 			return false;
 		}
 		

@@ -10,6 +10,7 @@ public class pieceBehavior : MonoBehaviour {
 	public int jDirLenStar; 
 	public Material mat;
 	public Material matStar;
+	public Sprite hoverSprite;
 
 
 }

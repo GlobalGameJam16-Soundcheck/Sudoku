@@ -14,7 +14,7 @@ public class masterBehavior : MonoBehaviour {
 	private int currPlayer;
 	public float zDist;
 
-	public GameObject textField;
+	public GameObject[] textFields;
 	public GameObject[] inventoryList;
 
 	// Use this for initialization
@@ -35,7 +35,7 @@ public class masterBehavior : MonoBehaviour {
 				} else if (i == n/2 && j == n/2){//mid
 					whichPrefab = 4;
 				}
-				Vector3 pos = new Vector3 (transform.position.x + 1.1f*j*transform.localScale.x - 1.5f, 
+				Vector3 pos = new Vector3 (transform.position.x + 1.1f*j*transform.localScale.x - 0.5f, 
 										   transform.position.y - 1.1f*i*transform.localScale.y, zDist);
 //				Quaternion rot = Quaternion.AngleAxis (180f, transform.up);
 				grid[i,j] = (GameObject)Instantiate(cellPrefabs[whichPrefab], pos, transform.rotation);
@@ -113,8 +113,10 @@ public class masterBehavior : MonoBehaviour {
 
 	void OnGUI(){
 		//textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
-		string txt = "Player 1: " + score [0] + " Player 2: " + score [1];
-		textField.GetComponent<Text>().text = txt;
+		string txt0 = "Uptown: " + score [0];
+		string txt1 = "Empire: " + score [1];
+		textFields[0].GetComponent<Text>().text = txt0;
+		textFields[1].GetComponent<Text>().text = txt1;
 		//update inventory
 		for (int i = 0; i < inventoryList.Length; i++) { //[p0_A, p0_B, p0_c, p0_star, p1_A, p1_B, p1_C, p1_star]
 			int player = 0;
