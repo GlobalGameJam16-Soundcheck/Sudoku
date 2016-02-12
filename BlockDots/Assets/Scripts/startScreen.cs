@@ -12,6 +12,7 @@ public class startScreen : MonoBehaviour {
 	}
 
 	public void PressStart(){
+		Debug.Log ("start was pressed");
 		SceneManager.LoadScene ("blockDots");
 	}
 
@@ -19,6 +20,10 @@ public class startScreen : MonoBehaviour {
 		Debug.Log ("how to was pressed");
 		howToWasClicked = true;
 		startMaster.GetComponent<startController> ().clickCount = 0;
+	}
+
+	public void setClickerToFalse(){
+		howToWasClicked = false;
 	}
 
 }
