@@ -20,6 +20,9 @@ public class masterBehavior : MonoBehaviour {
 	public GameObject[] inventoryList; //text field for pieces, from i = 0 to len/2 is p0, rest is p1
 
 	public GameObject[] pieces; //pieces[0] = array of p0 pieces, pieces[1] = array of p1's pieces
+	public GameObject endPiece;
+	public float endPieceZ;
+	public GameObject homeButton;
 
 	// Use this for initialization
 	void Start () {
@@ -69,8 +72,18 @@ public class masterBehavior : MonoBehaviour {
 		}
 		calculateScore ();
 		if (checkGameOver ()) {
-			Debug.Log ("game is over!");
-			Debug.Break ();
+			Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
+			if (score [0] > score [1]) {
+				winColor = players [0].playerColor;
+			} else if (score [1] > score [0]) {
+				winColor = players [1].playerColor;
+			}
+			endPiece.GetComponent<MeshRenderer> ().material.color = winColor;
+			Vector3 pos = endPiece.transform.position;
+			endPiece.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
+			homeButton.SetActive (true);
+			players [0].gameOver = true;
+			players [1].gameOver = true;
 		}
 	}
 

@@ -41,6 +41,8 @@ public class playerBehavior : MonoBehaviour {
 	private AudioSource putDownGood;
 	private AudioSource pickUp;
 
+	public bool gameOver { get; set; }
+
 	// Use this for initialization
 	void Start () {
 		score = 0;
@@ -63,6 +65,7 @@ public class playerBehavior : MonoBehaviour {
 		pickUp = A [1];
 		putDownGood = A [2];
 		putDownBad = A [0];
+		gameOver = false;
 	}
 
 	void OnMouseUp(){
@@ -100,21 +103,23 @@ public class playerBehavior : MonoBehaviour {
 		//start of a turn, clickStar is false
 
 		//if no spots to go, playedTurn = true;
-		if (!canGo()){
-			Debug.Log ("cannot go but other player can");
-			playedTurn = true;
-		}
-
-		if (Input.GetMouseButtonDown(0) && !holding){ //click
-			Debug.Log ("clicked!");
-			checkClick();
-		}
-		if (Input.GetMouseButton (0)) { //holding
-			if (holding) { //drag to mouse
-				dragPiece();
+		if (!gameOver) {
+			if (!canGo ()) {
+				Debug.Log ("cannot go but other player can");
+				playedTurn = true;
 			}
-		} else {
-			release ();
+
+			if (Input.GetMouseButtonDown (0) && !holding) { //click
+				Debug.Log ("clicked!");
+				checkClick ();
+			}
+			if (Input.GetMouseButton (0)) { //holding
+				if (holding) { //drag to mouse
+					dragPiece ();
+				}
+			} else {
+				release ();
+			}
 		}
 	}
 
