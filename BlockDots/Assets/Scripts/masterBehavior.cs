@@ -135,6 +135,7 @@ public class masterBehavior : MonoBehaviour {
 						players [currPlayer].playedTurn = false;
 						currPlayer = (currPlayer + 1) % 2;
 						needNewTut = true;
+						tutStep.activateBground ();
 					}
 				}
 				calculateScore ();
