@@ -11,6 +11,7 @@ public class playerBehavior : MonoBehaviour {
 	public int star_movable_amt;//1
 	public int player;//am i 0 or 1?
 	public Color playerColor;
+	public Color inventoryColor;
 	public string star_piece; //these are the tags
 	public string star_piece_movable;
 	public GameObject origStarPiece;

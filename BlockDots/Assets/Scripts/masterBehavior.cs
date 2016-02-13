@@ -24,6 +24,14 @@ public class masterBehavior : MonoBehaviour {
 	public float endPieceZ;
 	public GameObject homeButton;
 
+	public GameObject[] tutorials; //holds the info for each tutorial
+	public GameObject tutorialTextField;
+	private bool tutorialMode;
+	private bool tutModeFin;
+	private int currTut;
+	private bool needNewTut;
+	private tutorialSteps tutStep;
+
 	// Use this for initialization
 	void Start () {
 		n = 5; //n x n grid
@@ -60,30 +68,77 @@ public class masterBehavior : MonoBehaviour {
 		for (int i = 0; i < score.Length; i++) {
 			score [i] = 0;
 		}
+		tutorialMode = tutorials.Length > 0;
+		currTut = 0;
+		tutModeFin = false;
+		needNewTut = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		updatePiecesColor ();
-		players [currPlayer].makeTurn ();
-		if (players[currPlayer].playedTurn){
-			players [currPlayer].playedTurn = false;
-			currPlayer = (currPlayer + 1) % 2;
-		}
-		calculateScore ();
-		if (checkGameOver ()) {
-			Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
-			if (score [0] > score [1]) {
-				winColor = players [0].playerColor;
-			} else if (score [1] > score [0]) {
-				winColor = players [1].playerColor;
+		if (!tutorialMode) {
+			if (!tutModeFin) {
+				players [currPlayer].makeTurn ();
+				if (players [currPlayer].playedTurn) {
+					players [currPlayer].playedTurn = false;
+					currPlayer = (currPlayer + 1) % 2;
+				}
+				calculateScore ();
+				if (checkGameOver ()) {
+					Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
+					if (score [0] > score [1]) {
+						winColor = players [0].playerColor;
+					} else if (score [1] > score [0]) {
+						winColor = players [1].playerColor;
+					}
+					endPiece.GetComponent<MeshRenderer> ().material.color = winColor;
+					Vector3 pos = endPiece.transform.position;
+					endPiece.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
+					homeButton.SetActive (true);
+					players [0].gameOver = true;
+					players [1].gameOver = true;
+				}
 			}
-			endPiece.GetComponent<MeshRenderer> ().material.color = winColor;
-			Vector3 pos = endPiece.transform.position;
-			endPiece.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
-			homeButton.SetActive (true);
-			players [0].gameOver = true;
-			players [1].gameOver = true;
+		} else {
+			if (needNewTut) {
+				if (currTut >= tutorials.Length) {
+					//tuts are over
+					tutorialMode = false;
+					tutModeFin = true;
+					homeButton.SetActive (true);
+					needNewTut = false;
+				} else {
+					tutStep = tutorials [currTut].GetComponent<tutorialSteps> ();
+					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
+					currTut++;
+					for (int i = 0; i < tutStep.pieceTags.Length; i++) {
+						//set pieces up
+						players [0].pieceDict [tutStep.pieceTags [i]] = tutStep.p0PieceAmt [i];
+						players [1].pieceDict [tutStep.pieceTags [i]] = tutStep.p1PieceAmt [i];
+					}
+					needNewTut = false;
+				}
+			} else {
+				//use the tut that's in progress till it's finished
+				if (Input.GetMouseButton (0)) {
+					tutorialTextField.GetComponent<Text> ().text = "";
+					tutStep.deActivateBground ();
+				} else {
+					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
+					tutStep.activateBground ();
+				}
+				players[currPlayer].makeTurn();
+				if (players [currPlayer].playedTurn) {
+					tutorialTextField.GetComponent<Text> ().text = tutStep.completed;
+					if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1)) {
+						players [currPlayer].playedTurn = false;
+						currPlayer = (currPlayer + 1) % 2;
+						needNewTut = true;
+					}
+				}
+				calculateScore ();
+			}
 		}
 	}
 
@@ -172,6 +227,9 @@ public class masterBehavior : MonoBehaviour {
 			inventoryList [i].GetComponent<Text> ().text = amtLeft.ToString ();
 			if (amtLeft <= 0) {
 				inventoryList [i].GetComponent<Text> ().color = Color.gray;
+			} else {
+				if (tutorialMode)
+					inventoryList [i].GetComponent<Text> ().color = players[player].inventoryColor;
 			}
 		}
 	}
