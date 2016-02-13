@@ -103,11 +103,15 @@ public class masterBehavior : MonoBehaviour {
 		} else {
 			if (needNewTut) {
 				if (currTut >= tutorials.Length) {
-					//tuts are over
-					tutorialMode = false;
-					tutModeFin = true;
-					homeButton.SetActive (true);
-					needNewTut = false;
+					if (Input.GetMouseButtonDown (1)) {
+						tutStep.deActivateBground ();
+						tutorialTextField.GetComponent<Text> ().text = "";
+						//tuts are over
+						tutorialMode = false;
+						tutModeFin = true;
+						homeButton.SetActive (true);
+						needNewTut = false;
+					}
 				} else {
 					tutStep = tutorials [currTut].GetComponent<tutorialSteps> ();
 					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
@@ -121,17 +125,18 @@ public class masterBehavior : MonoBehaviour {
 				}
 			} else {
 				//use the tut that's in progress till it's finished
-				if (Input.GetMouseButton (0)) {
-					tutorialTextField.GetComponent<Text> ().text = "";
-					tutStep.deActivateBground ();
+				if (!players [currPlayer].playedTurn) {
+					if (Input.GetMouseButton (0)) {
+						tutorialTextField.GetComponent<Text> ().text = "";
+						tutStep.deActivateBground ();
+					} else {
+						tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
+						tutStep.activateBground ();
+					}
+					players [currPlayer].makeTurn ();
 				} else {
-					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
-					tutStep.activateBground ();
-				}
-				players[currPlayer].makeTurn();
-				if (players [currPlayer].playedTurn) {
 					tutorialTextField.GetComponent<Text> ().text = tutStep.completed;
-					if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1)) {
+					if (Input.GetMouseButtonDown (1)) {
 						players [currPlayer].playedTurn = false;
 						currPlayer = (currPlayer + 1) % 2;
 						needNewTut = true;
