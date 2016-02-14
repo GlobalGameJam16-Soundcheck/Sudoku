@@ -101,17 +101,19 @@ public class masterBehavior : MonoBehaviour {
 				}
 			}
 		} else {
-			if (needNewTut) {
+			if (needNewTut || tutModeFin) {
 				if (currTut >= tutorials.Length) {
-					if (Input.GetMouseButtonDown (1)) {
-						tutStep.deActivateBground ();
-						tutorialTextField.GetComponent<Text> ().text = "";
-						//tuts are over
-						tutorialMode = false;
-						tutModeFin = true;
+//					if (Input.GetMouseButtonDown (1)) {
+					tutStep.deActivateBground ();
+					tutorialTextField.GetComponent<Text> ().text = "";
+					//tuts are over
+//					tutorialMode = false;
+					tutModeFin = true;
+					Debug.Log ("homer");
+					if (!homeButton.activeInHierarchy)
 						homeButton.SetActive (true);
-						needNewTut = false;
-					}
+					needNewTut = false;
+//					}
 				} else {
 					tutStep = tutorials [currTut].GetComponent<tutorialSteps> ();
 					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
@@ -140,7 +142,9 @@ public class masterBehavior : MonoBehaviour {
 						players [currPlayer].playedTurn = false;
 						currPlayer = (currPlayer + 1) % 2;
 						needNewTut = true;
+//						if (currTut < tutorials.Length) {
 						tutStep.activateBground ();
+//						}
 					}
 				}
 				calculateScore ();
