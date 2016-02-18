@@ -168,8 +168,6 @@ public class masterBehavior : MonoBehaviour {
 								}
 							}
 							completedText += " " + numBlocksInControl.ToString() + " " + tutStep.completed1;
-							completedText += " " + currPlayerScore.ToString () + " " + tutStep.completed2;
-							completedText += " " + currPlayerScore.ToString () + ". " + tutStep.completed3;
 						}
 						tutorialTextFields [currPlayer].GetComponent<Text> ().text = completedText;
 						if (Input.GetMouseButtonDown (1)) {
@@ -381,7 +379,7 @@ public class masterBehavior : MonoBehaviour {
 			bool playerCanGo = playerScript.canGo (true);
 			atLeastOneCanGo = atLeastOneCanGo || playerCanGo;
 			if (!playerCanGo) {
-				if (score [i] < score [(i + 1) % 2]) {
+				if (score [i] < score [(i + 1) % 2] && !(Input.GetMouseButton(0))) {
 					return true; //this player stupidly locked himself out while losing so game over
 				}
 			}

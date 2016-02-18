@@ -53,7 +53,7 @@ public class drawPolarFFT : MonoBehaviour
 				if (started) {
 					timer += Time.deltaTime;
 					if (timer >= afterDelay) {
-						SceneManager.LoadScene ("startScreen");
+						SceneManager.LoadScene ("startScreenWithTut");
 					}
 				}
 			}

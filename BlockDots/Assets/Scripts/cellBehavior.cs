@@ -44,7 +44,7 @@ public class cellBehavior : MonoBehaviour {
 		playerDots [0] = player0dots; //should alias these references to arrays
 		playerDots [1] = player1dots;
 		origColor = GetComponent<MeshRenderer> ().material.color;
-		outlineOrigEmissiveColor = outline.GetComponent<MeshRenderer> ().material.GetColor ("_EMISSIONCOLOR");
+		outlineOrigEmissiveColor = outline.GetComponent<MeshRenderer> ().material.GetColor ("_EmissionColor");
 		outlineOrigColor = outline.GetComponent<MeshRenderer> ().material.color;
 		starOnHere = false;
 
@@ -164,9 +164,9 @@ public class cellBehavior : MonoBehaviour {
 
 	public void setOutlineEmissiveColor(bool orig){
 		if (!orig) {
-			outline.GetComponent<MeshRenderer> ().material.SetColor ("_EMISSIONCOLOR", Color.black);
+			outline.GetComponent<MeshRenderer> ().material.SetColor ("_EmissionColor", Color.black);
 		} else {
-			outline.GetComponent<MeshRenderer> ().material.SetColor ("_EMISSIONCOLOR", outlineOrigEmissiveColor);
+			outline.GetComponent<MeshRenderer> ().material.SetColor ("_EmissionColor", outlineOrigEmissiveColor);
 		}
 	}
 }

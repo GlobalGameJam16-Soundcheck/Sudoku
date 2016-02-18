@@ -23,15 +23,15 @@ public class startController : MonoBehaviour {
 			howToWasClicked = true;
 		}
 
-		if (howToWasClicked && Input.GetMouseButtonDown (0)) {
+		if (howToWasClicked && Input.GetMouseButtonDown (1)) {
 			clickCount++;
 			Debug.Log ("click count = " + clickCount);
 		}
 
-		if (howToWasClicked && Input.GetMouseButtonDown (1)) {
-			clickCount--;
-			Debug.Log ("right click, clickCount = " + clickCount);
-		}
+//		if (howToWasClicked && Input.GetMouseButtonDown (0)) {
+//			clickCount--;
+//			Debug.Log ("right click, clickCount = " + clickCount);
+//		}
 
 		if (clickCount == 0 && howToWasClicked && isActive) {
 			howToButton.SetActive (false);
