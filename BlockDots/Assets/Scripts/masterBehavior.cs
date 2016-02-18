@@ -35,6 +35,8 @@ public class masterBehavior : MonoBehaviour {
 	private bool currPlayerIsHovering; //if player is hovering, add score is displayed in white and previews what score would be
 	private Color[] origScoreColor;
 
+	public Texture[] gameOverTextures;
+
 	// Use this for initialization
 	void Start () {
 		n = 5; //n x n grid
@@ -92,13 +94,22 @@ public class masterBehavior : MonoBehaviour {
 				}
 				calculateScore ();
 				if (checkGameOver ()) {
-					Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
+//					Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
+					Texture texture = gameOverTextures [2]; //default for tie
 					if (score [0] > score [1]) {
-						winColor = players [0].playerColor;
+//						winColor = players [0].playerColor;
+						texture = gameOverTextures[0];
+						if (players[1].numPiecesLeft() > 0){
+							texture = gameOverTextures [3]; //win by lockout bc player1 can still go
+						}
 					} else if (score [1] > score [0]) {
-						winColor = players [1].playerColor;
+//						winColor = players [1].playerColor;
+						texture = gameOverTextures[1];
+						if (players[0].numPiecesLeft() > 0){
+							texture = gameOverTextures [4]; //win by lockout bc player0 can still go
+						}
 					}
-					endPiece.GetComponent<MeshRenderer> ().material.color = winColor;
+					endPiece.GetComponent<MeshRenderer> ().material.mainTexture = texture;
 					Vector3 pos = endPiece.transform.position;
 					endPiece.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
 					homeButton.SetActive (true);
@@ -329,17 +340,21 @@ public class masterBehavior : MonoBehaviour {
 					p0 += total;
 //					color = players[0].outlineColor;
 					texture = players [0].outlineNeonTexture;
+					cellScript.setOutlineEmissiveColor (false);
 				} else if (p1count > p0count) {
 					p1 += total;
 //					color = players[1].outlineColor;
 					texture = players [1].outlineNeonTexture;
+					cellScript.setOutlineEmissiveColor (false);
 				} else {
 					if (p0count == 0 && p1count == 0) {
 //						color = cellScript.outlineOrigColor;
 						texture = players[0].outlineOrigNeonTexture;
+						cellScript.setOutlineEmissiveColor (true);
 					} else {
 //						color = cellScript.tiedColor;
-						texture = players[0].outlineOrigNeonTexture;
+						texture = players[0].outlineTieNeonTexture;
+						cellScript.setOutlineEmissiveColor (false);
 					}
 				}
 				cellScript.changeOutlineColor (texture);
@@ -350,19 +365,28 @@ public class masterBehavior : MonoBehaviour {
 	}
 
 	private bool checkGameOver(){
-//		bool atLeastOneCanGo = false;
+		bool atLeastOneCanGo = false;
 //		foreach (playerBehavior playerScript in players) {
 //			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo (true);
 //		}
 //		return !atLeastOneCanGo;
-
+		//
+		// if player cannot go 
+		//	if this player is losing, game over
+		//  else game is not over?
+		//
 		//if a player can no longer move, game is over
-		foreach (playerBehavior playerScript in players) {
-			if (!playerScript.canGo (true)) {
-				return true;
+		for (int i = 0; i < players.Length; i++) {
+			playerBehavior playerScript = players [i];
+			bool playerCanGo = playerScript.canGo (true);
+			atLeastOneCanGo = atLeastOneCanGo || playerCanGo;
+			if (!playerCanGo) {
+				if (score [i] < score [(i + 1) % 2]) {
+					return true; //this player stupidly locked himself out while losing so game over
+				}
 			}
 		}
-		return false;
+		return !atLeastOneCanGo;
 	}
 
 	void OnGUI(){
@@ -389,10 +413,11 @@ public class masterBehavior : MonoBehaviour {
 			inventoryList [i].GetComponent<Text> ().text = amtLeft.ToString ();
 			if (amtLeft <= 0) {
 				inventoryList [i].GetComponent<Text> ().color = Color.gray;
-			} else {
-				if (tutorialMode)
-					inventoryList [i].GetComponent<Text> ().color = players[player].inventoryColor;
-			}
+			} 
+//			else {
+//				if (tutorialMode)
+//					inventoryList [i].GetComponent<Text> ().color = players[player].inventoryColor;
+//			}
 		}
 	}
 

@@ -11,7 +11,6 @@ public class playerBehavior : MonoBehaviour {
 	public int star_movable_amt;//1
 	public int player;//am i 0 or 1?
 	public Color playerColor;
-	public Color inventoryColor;
 	public string star_piece; //these are the tags
 	public string star_piece_movable;
 	public GameObject origStarPiece;
@@ -38,6 +37,7 @@ public class playerBehavior : MonoBehaviour {
 
 	public Texture outlineNeonTexture;
 	public Texture outlineOrigNeonTexture;
+	public Texture outlineTieNeonTexture;
 	public Color outlineColor;
 	public Color dotColor; //this is for the barrels/aka dots
 
@@ -78,6 +78,10 @@ public class playerBehavior : MonoBehaviour {
 			clickedStar = false;
 //		if (clickedMovableStar)
 //			clickedMovableStar = false;
+	}
+
+	public int numPiecesLeft(){
+		return (pieceDict[a_piece] + pieceDict[b_piece] + pieceDict[c_piece] + pieceDict[star_piece_movable]);
 	}
 
 	public bool canGo(bool checkStarToo){

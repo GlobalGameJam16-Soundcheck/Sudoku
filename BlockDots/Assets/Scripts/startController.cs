@@ -51,7 +51,7 @@ public class startController : MonoBehaviour {
 			howToButton.GetComponent<startScreen> ().setClickerToFalse ();
 		} else if (clickCount >= howToShots.Length) {
 			Debug.Log("greater than length");
-			SceneManager.LoadScene("tutLevel");
+			SceneManager.LoadScene("tutWithBGround");
 		}
 
 		if (clickCount >= 0 && clickCount < howToShots.Length && !isActive) {
