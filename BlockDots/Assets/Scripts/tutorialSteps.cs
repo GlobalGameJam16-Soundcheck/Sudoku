@@ -21,6 +21,7 @@ public class tutorialSteps : MonoBehaviour {
 	public bool testContestSpace;
 	public bool testStarPiece;
 	public bool testSetUpForStar;
+	public bool testPlaceOnContested;
 	public bool testBadSpotForUptown;
 	public int neededAmountOfFreeSpots;
 

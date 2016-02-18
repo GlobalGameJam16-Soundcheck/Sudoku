@@ -29,6 +29,8 @@ public class cellBehavior : MonoBehaviour {
 	private bool oldStarOnHere;
 	private Material oldMat;
 
+	public bool beingHoveredOn { get; set; }
+
 	// Use this for initialization
 	public void Init () {
 		occupiedPlayer = -1;
@@ -51,6 +53,8 @@ public class cellBehavior : MonoBehaviour {
 		oldDotCount [2] = defaultAmt;
 		oldStarOnHere = false;
 		oldMat = transform.GetComponent<MeshRenderer> ().material;
+
+		beingHoveredOn = false;
 	}
 
 	public bool canBePlayedOn(int player, bool star, bool firstTurn){
@@ -81,8 +85,10 @@ public class cellBehavior : MonoBehaviour {
 			if (!dotScript.coloredIn) {
 				if (!orig) {
 					dotScript.setDotColor (color);
+					beingHoveredOn = true;
 				} else {
 					dotScript.setDotColor (dotScript.origColor);
+					beingHoveredOn = false;
 				}
 			}
 		}
@@ -92,6 +98,7 @@ public class cellBehavior : MonoBehaviour {
 		if (dotCount [player] < dotCap) {
 			GameObject dot = playerDots[player][dotCount[player]];
 			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
+			beingHoveredOn = false;
 			dotScript.setHover (false);
 			if (!dotScript.coloredIn) {
 				dotScript.setDotColor (color);
@@ -146,5 +153,10 @@ public class cellBehavior : MonoBehaviour {
 				dot.GetComponent<dotBehavior> ().goBackToPrevState();
 			}
 		}
+	}
+
+	public void changeOutlineColor(Texture texture){
+		MeshRenderer mr = outline.GetComponent<MeshRenderer> ();
+		mr.material.mainTexture = texture;
 	}
 }

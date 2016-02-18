@@ -36,6 +36,8 @@ public class playerBehavior : MonoBehaviour {
 	public bool oldFirstTurn { get; set; }
 	public bool playedTurn { get; set; }
 
+	public Texture outlineNeonTexture;
+	public Texture outlineOrigNeonTexture;
 	public Color outlineColor;
 	public Color dotColor; //this is for the barrels/aka dots
 

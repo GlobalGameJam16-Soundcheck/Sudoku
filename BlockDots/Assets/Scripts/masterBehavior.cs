@@ -32,6 +32,9 @@ public class masterBehavior : MonoBehaviour {
 	private bool needNewTut;
 	private tutorialSteps tutStep;
 
+	private bool currPlayerIsHovering; //if player is hovering, add score is displayed in white and previews what score would be
+	private Color[] origScoreColor;
+
 	// Use this for initialization
 	void Start () {
 		n = 5; //n x n grid
@@ -72,6 +75,9 @@ public class masterBehavior : MonoBehaviour {
 		currTut = 0;
 		tutModeFin = false;
 		needNewTut = true;
+		origScoreColor = new Color[2];
+		origScoreColor [0] = textFields [0].GetComponent<Text> ().color;
+		origScoreColor [1] = textFields [1].GetComponent<Text> ().color;
 	}
 	
 	// Update is called once per frame
@@ -245,14 +251,29 @@ public class masterBehavior : MonoBehaviour {
 			for (int i = 0; i < grid.GetLength (0); i++) {
 				for (int j = 0; j < grid.GetLength (1); j++) {
 					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
-					if (cellScript.dotCount [currPlayer] > 0 && cellScript.dotCount[(currPlayer + 1) % 2] == 0 
-						&& !cellScript.isOccupied ()) {
+					if (cellScript.dotCount [currPlayer] > 0 && cellScript.dotCount [(currPlayer + 1) % 2] == 0
+					    && !cellScript.isOccupied ()) {
 						otherPlayerCanPlayStarOnCurrCell = true;
 						break;
 					}
 				}
 			}
 			if (!otherPlayerCanPlayStarOnCurrCell) {
+				tutStep.useCompleted = false;
+			}
+		} else if (tutStep.testPlaceOnContested) {
+			bool playedOnContested = false;
+			for (int i = 0; i < grid.GetLength (0); i++) {
+				for (int j = 0; j < grid.GetLength (1); j++) {
+					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+					if (cellScript.dotCount[currPlayer] > 0 && cellScript.dotCount [(currPlayer + 1) % 2] > 0 && 
+						cellScript.dotCount[currPlayer] > cellScript.dotCount [(currPlayer + 1) % 2]){
+						playedOnContested = true;
+						break;
+					}
+				}
+			}
+			if (!playedOnContested) {
 				tutStep.useCompleted = false;
 			}
 		}
@@ -286,31 +307,42 @@ public class masterBehavior : MonoBehaviour {
 	private void calculateScore(){
 		int p0 = 0;
 		int p1 = 0;
+		currPlayerIsHovering = false;
 		for (int i = 0; i < grid.GetLength (0); i++) {
 			for (int j = 0; j < grid.GetLength (1); j++) {
 				cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
 				int p0count = cellScript.dotCount [0];
 				int p1count = cellScript.dotCount [1];
 				int defaultCount = cellScript.dotCount [2];
+				if (cellScript.beingHoveredOn) {
+					currPlayerIsHovering = true;
+					if (currPlayer == 0) {
+						p0count++;
+					} else {
+						p1count++;
+					}
+				}
 				int total = p0count + p1count + defaultCount;
 				MeshRenderer mr = cellScript.outline.GetComponent<MeshRenderer> ();
-				Color color;
+				Texture texture;
 				if (p0count > p1count) {
 					p0 += total;
-//					color = new Color(players [0].playerColor.r, players [0].playerColor.g, players [0].playerColor.b, players [0].playerColor.a/2);
-					color = players[0].outlineColor;
-					mr.material.color = color;
+//					color = players[0].outlineColor;
+					texture = players [0].outlineNeonTexture;
 				} else if (p1count > p0count) {
 					p1 += total;
-//					color = new Color(players [1].playerColor.r, players [1].playerColor.g, players [1].playerColor.b, players [1].playerColor.a/2);
-					color = players[1].outlineColor;
-					mr.material.color = color;
+//					color = players[1].outlineColor;
+					texture = players [1].outlineNeonTexture;
 				} else {
-					if (p0count == 0 && p1count == 0)
-						mr.material.color = cellScript.outlineOrigColor;
-					else
-						mr.material.color = cellScript.tiedColor;
+					if (p0count == 0 && p1count == 0) {
+//						color = cellScript.outlineOrigColor;
+						texture = players[0].outlineOrigNeonTexture;
+					} else {
+//						color = cellScript.tiedColor;
+						texture = players[0].outlineOrigNeonTexture;
+					}
 				}
+				cellScript.changeOutlineColor (texture);
 			}
 		}
 		score [0] = p0;
@@ -318,19 +350,33 @@ public class masterBehavior : MonoBehaviour {
 	}
 
 	private bool checkGameOver(){
-		bool atLeastOneCanGo = false;
+//		bool atLeastOneCanGo = false;
+//		foreach (playerBehavior playerScript in players) {
+//			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo (true);
+//		}
+//		return !atLeastOneCanGo;
+
+		//if a player can no longer move, game is over
 		foreach (playerBehavior playerScript in players) {
-			atLeastOneCanGo = atLeastOneCanGo || playerScript.canGo (true);
+			if (!playerScript.canGo (true)) {
+				return true;
+			}
 		}
-		return !atLeastOneCanGo;
+		return false;
 	}
 
 	void OnGUI(){
-		//textField.transform.position = new Vector3 (Screen.width/2f, Screen.height - Screen.height/10f, textField.transform.position.z);
-		string txt0 = "UPTOWN: " + score [0];
-		string txt1 = "EMPIRE: " + score [1];
+		string txt0 = score [0].ToString();
+		string txt1 = score [1].ToString();
 		textFields[0].GetComponent<Text>().text = txt0;
 		textFields[1].GetComponent<Text>().text = txt1;
+		if ((currPlayerIsHovering || (!players[currPlayer].playedTurn && Input.GetMouseButton(0))) && !homeButton.activeInHierarchy) {
+			textFields [0].GetComponent<Text> ().color = Color.gray;
+			textFields [1].GetComponent<Text> ().color = Color.gray;
+		} else {
+			textFields [0].GetComponent<Text> ().color = origScoreColor[0];
+			textFields [1].GetComponent<Text> ().color = origScoreColor[1];
+		}
 		//update inventory
 		for (int i = 0; i < inventoryList.Length; i++) { //[p0_A, p0_B, p0_c, p0_star, p1_A, p1_B, p1_C, p1_star]
 			int player = 0;
