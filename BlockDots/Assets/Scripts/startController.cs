@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class startController : MonoBehaviour {
 
@@ -36,18 +37,21 @@ public class startController : MonoBehaviour {
 			howToButton.SetActive (false);
 			startButton.SetActive (false);
 			isActive = false;
-		} else if ((clickCount == -1 || clickCount >= howToShots.Length) && !isActive) {
+		} else if (clickCount == -1 && !isActive) {
 			howToButton.SetActive (true);
 			startButton.SetActive (true);
 			isActive = true;
 			for (int i = 0; i < howToShots.Length; i++) {
 				Vector3 pos = howToShots [i].transform.position;
-				howToShots[i].transform.position = new Vector3 (pos.x, pos.y, 0f);
+				howToShots [i].transform.position = new Vector3 (pos.x, pos.y, 0f);
 			}
 			howToWasClicked = false;
 			clickCount = -1;
 			isActive = true;
 			howToButton.GetComponent<startScreen> ().setClickerToFalse ();
+		} else if (clickCount >= howToShots.Length) {
+			Debug.Log("greater than length");
+			SceneManager.LoadScene("tutLevel");
 		}
 
 		if (clickCount >= 0 && clickCount < howToShots.Length && !isActive) {

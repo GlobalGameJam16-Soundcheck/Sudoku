@@ -7,7 +7,7 @@ public class homeButton : MonoBehaviour {
 
 	public void pressedHome(){
 		Debug.Log ("pressed home");
-		SceneManager.LoadScene ("startScreen");
+		SceneManager.LoadScene ("startScreenWithTut");
 	}
 
 }
