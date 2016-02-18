@@ -6,6 +6,8 @@ public class dotBehavior : MonoBehaviour {
 	public bool coloredIn { get; set; }
 	public Color origColor { get; set; } 
 
+	public bool isHovering { get; set; }
+
 	private bool oldColoredIn;
 	private Color oldColor;
 
@@ -15,6 +17,8 @@ public class dotBehavior : MonoBehaviour {
 
 		oldColoredIn = false;
 		oldColor = origColor;
+
+		isHovering = false;
 	}
 
 	public void setDotColor(Color color){
@@ -22,12 +26,18 @@ public class dotBehavior : MonoBehaviour {
 	}
 
 	public void saveState(){
-		oldColoredIn = coloredIn;
-		oldColor = GetComponent<SpriteRenderer> ().material.color;
+		if (!isHovering) {
+			oldColoredIn = coloredIn;
+			oldColor = GetComponent<SpriteRenderer> ().material.color;
+		}
 	}
 
 	public void goBackToPrevState(){
 		coloredIn = oldColoredIn;
 		GetComponent<SpriteRenderer> ().material.color = oldColor;
+	}
+
+	public void setHover(bool hover){
+		isHovering = hover;
 	}
 }

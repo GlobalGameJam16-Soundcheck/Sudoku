@@ -8,6 +8,10 @@ public class tutorialSteps : MonoBehaviour {
 	public int[] p1PieceAmt; //A_amt, B_amt, C_amt, Star_amt;
 	public string instruction;
 	public string completed;
+	public bool displayScoreInCompleted;
+	public string completed1; //this is used when we display score;
+	public string completed2; //this is used when we display score;
+	public string completed3;
 	public string badCompleted;
 	public bool useCompleted { get; set; }
 	public int timer; //count down for the amount of seconds to allow the players to play
@@ -16,6 +20,9 @@ public class tutorialSteps : MonoBehaviour {
 	public bool saveGameBoard;
 	public bool testContestSpace;
 	public bool testStarPiece;
+	public bool testSetUpForStar;
+	public bool testBadSpotForUptown;
+	public int neededAmountOfFreeSpots;
 
 	void Start(){
 		deactivated = new bool[2];

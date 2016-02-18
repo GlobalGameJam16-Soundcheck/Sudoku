@@ -138,7 +138,23 @@ public class masterBehavior : MonoBehaviour {
 				} else {
 					testSuggestedInstructions ();
 					if (tutStep.useCompleted) {
-						tutorialTextFields[currPlayer].GetComponent<Text> ().text = tutStep.completed;
+						string completedText = tutStep.completed;
+						if (tutStep.displayScoreInCompleted){
+							int numBlocksInControl = 0;
+							int currPlayerScore = score [currPlayer];
+							for (int i = 0; i < grid.GetLength (0); i++) {
+								for (int j = 0; j < grid.GetLength (1); j++) {
+									cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+									if (cellScript.dotCount [currPlayer] > cellScript.dotCount [otherPlayer]) {
+										numBlocksInControl++;
+									}
+								}
+							}
+							completedText += " " + numBlocksInControl.ToString() + " " + tutStep.completed1;
+							completedText += " " + currPlayerScore.ToString () + " " + tutStep.completed2;
+							completedText += " " + currPlayerScore.ToString () + ". " + tutStep.completed3;
+						}
+						tutorialTextFields [currPlayer].GetComponent<Text> ().text = completedText;
 						if (Input.GetMouseButtonDown (1)) {
 							players [currPlayer].playedTurn = false;
 							tutStep.activateBground (otherPlayer);
@@ -158,6 +174,7 @@ public class masterBehavior : MonoBehaviour {
 									grid [i, j].GetComponent<cellBehavior> ().goBackToPrevState ();
 								}
 							}
+							players [currPlayer].firstTurn = players [currPlayer].oldFirstTurn;
 							tutStep.useCompleted = true;
 							for (int i = 0; i < tutStep.pieceTags.Length; i++) {
 								players [0].pieceDict [tutStep.pieceTags [i]] = tutStep.p0PieceAmt [i];
@@ -209,6 +226,34 @@ public class masterBehavior : MonoBehaviour {
 						}
 					}
 				}
+			}
+		} else if (tutStep.testBadSpotForUptown) {
+			int numFreeSpaces = 0;
+			for (int i = 0; i < grid.GetLength (0); i++) {
+				for (int j = 0; j < grid.GetLength (1); j++) {
+					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+					if (cellScript.dotCount [currPlayer] > 0 && !cellScript.isOccupied ()) {
+						numFreeSpaces++;
+					}
+				}
+			}
+			if (numFreeSpaces < tutStep.neededAmountOfFreeSpots) {
+				tutStep.useCompleted = false;
+			}
+		} else if (tutStep.testSetUpForStar) {
+			bool otherPlayerCanPlayStarOnCurrCell = false;
+			for (int i = 0; i < grid.GetLength (0); i++) {
+				for (int j = 0; j < grid.GetLength (1); j++) {
+					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+					if (cellScript.dotCount [currPlayer] > 0 && cellScript.dotCount[(currPlayer + 1) % 2] == 0 
+						&& !cellScript.isOccupied ()) {
+						otherPlayerCanPlayStarOnCurrCell = true;
+						break;
+					}
+				}
+			}
+			if (!otherPlayerCanPlayStarOnCurrCell) {
+				tutStep.useCompleted = false;
 			}
 		}
 	}

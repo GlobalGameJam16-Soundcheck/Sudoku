@@ -32,7 +32,8 @@ public class playerBehavior : MonoBehaviour {
 	private int hoverCelli;
 	private int hoverCellj;
 
-	private bool firstTurn;
+	public bool firstTurn { get; set; }
+	public bool oldFirstTurn { get; set; }
 	public bool playedTurn { get; set; }
 
 	public Color outlineColor;
@@ -61,6 +62,7 @@ public class playerBehavior : MonoBehaviour {
 		hoverCelli = -1;
 		hoverCellj = -1;
 		firstTurn = true;
+		oldFirstTurn = true;
 		playedTurn = false;
 		AudioSource[] A = this.GetComponents<AudioSource> ();
 		pickUp = A [1];
@@ -300,6 +302,11 @@ public class playerBehavior : MonoBehaviour {
 				bool canPlay = cellScript.canBePlayedOn (player, clickedAStar (), firstTurn);
 //				Debug.Log ("canPlay: " + canPlay);
 				if (canPlay) {
+					if (firstTurn == true) {
+						oldFirstTurn = true;
+					} else {
+						oldFirstTurn = false;
+					}
 					firstTurn = false;
 					hoverCelli = cellScript.i;
 					hoverCellj = cellScript.j;

@@ -62,8 +62,10 @@ public class cellBehavior : MonoBehaviour {
 			return true;
 		} else if (firstTurn) {
 			return true;
-		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
+//		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
 			//used a star so can play on unoccupied cell with at least one dot of other player but less than cap
+		} else if (star) {
+			//used like a first turn
 			return true;
 		} else {
 			return false;
@@ -75,6 +77,7 @@ public class cellBehavior : MonoBehaviour {
 		if (dotCount [player] < dotCap && playerDots[player].Length > 0) {
 			GameObject dot = playerDots[player][dotCount[player]];
 			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
+			dotScript.setHover (true);
 			if (!dotScript.coloredIn) {
 				if (!orig) {
 					dotScript.setDotColor (color);
@@ -89,6 +92,7 @@ public class cellBehavior : MonoBehaviour {
 		if (dotCount [player] < dotCap) {
 			GameObject dot = playerDots[player][dotCount[player]];
 			dotBehavior dotScript = dot.GetComponent<dotBehavior> ();
+			dotScript.setHover (false);
 			if (!dotScript.coloredIn) {
 				dotScript.setDotColor (color);
 				dotScript.coloredIn = true;
