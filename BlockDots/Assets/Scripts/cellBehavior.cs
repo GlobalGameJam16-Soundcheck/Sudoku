@@ -20,6 +20,14 @@ public class cellBehavior : MonoBehaviour {
 	public GameObject outline;
 	public Color outlineOrigColor { get; set; }
 	public Color tiedColor;
+	public bool starOnHere { get; set; }
+
+	private int oldOccupiedPlayer;
+	private int[] oldDotCount;
+	private Color oldOrigColor;
+	private Color oldOutlineColor;
+	private bool oldStarOnHere;
+	private Material oldMat;
 
 	// Use this for initialization
 	public void Init () {
@@ -34,26 +42,30 @@ public class cellBehavior : MonoBehaviour {
 		playerDots [1] = player1dots;
 		origColor = GetComponent<MeshRenderer> ().material.color;
 		outlineOrigColor = outline.GetComponent<MeshRenderer> ().material.color;
+		starOnHere = false;
+
+		oldOccupiedPlayer = occupiedPlayer;
+		oldDotCount = new int[3];
+		oldDotCount [0] = 0;
+		oldDotCount [1] = 1;
+		oldDotCount [2] = defaultAmt;
+		oldStarOnHere = false;
+		oldMat = transform.GetComponent<MeshRenderer> ().material;
 	}
 
 	public bool canBePlayedOn(int player, bool star, bool firstTurn){
 		if (occupiedPlayer >= 0 || dotCount [player] >= dotCap) {
-//			Debug.Log ("1");
 			return false;
 		}
 		if (dotCount [player] > 0) {
 			//player has a dot here so he can play
-//			Debug.Log ("2, i: " + i + " j: " + j + " player: " + player);
 			return true;
 		} else if (firstTurn) {
-//			Debug.Log ("3");
 			return true;
 		} else if (star && dotCount [(player + 1) % 2] > 0 && dotCount [(player + 1) % 2] < dotCap) {
 			//used a star so can play on unoccupied cell with at least one dot of other player but less than cap
-//			Debug.Log ("4, i: " + i + " j: " + j + " player: " + player);
 			return true;
 		} else {
-//			Debug.Log ("5");
 			return false;
 		}
 		
@@ -85,12 +97,13 @@ public class cellBehavior : MonoBehaviour {
 		}
 	}
 		
-	public void makePlacement(int player, Material mat){
+	public void makePlacement(int player, Material mat, bool isStar){
 		if (occupiedPlayer < 0) {
 			occupiedPlayer = player;
 			transform.GetComponent<MeshRenderer> ().material = mat;
 		}
 		origColor = Color.white;
+		starOnHere = isStar;
 	}
 
 	public void setColor(Color color){
@@ -99,5 +112,35 @@ public class cellBehavior : MonoBehaviour {
 
 	public bool isOccupied(){
 		return (occupiedPlayer >= 0);
+	}
+
+	public void saveState(){
+		oldOccupiedPlayer = occupiedPlayer;
+		oldDotCount [0] = dotCount [0];
+		oldDotCount [1] = dotCount [1];
+		oldOrigColor = origColor;
+		oldOutlineColor = outline.GetComponent<MeshRenderer> ().material.color;
+		oldStarOnHere = starOnHere;
+		oldMat = transform.GetComponent<MeshRenderer> ().material;
+		for (int k = 0; k < playerDots.GetLength (0); k++) {
+			foreach (GameObject dot in playerDots[k]) {
+				dot.GetComponent<dotBehavior> ().saveState ();
+			}
+		}
+	}
+
+	public void goBackToPrevState(){
+		occupiedPlayer = oldOccupiedPlayer;
+		dotCount [0] = oldDotCount [0];
+		dotCount [1] = oldDotCount [1];
+		origColor = oldOrigColor;
+		outline.GetComponent<MeshRenderer> ().material.color = oldOutlineColor;
+		starOnHere = oldStarOnHere;
+		transform.GetComponent<MeshRenderer> ().material = oldMat;
+		for (int k = 0; k < playerDots.GetLength (0); k++) {
+			foreach (GameObject dot in playerDots[k]) {
+				dot.GetComponent<dotBehavior> ().goBackToPrevState();
+			}
+		}
 	}
 }

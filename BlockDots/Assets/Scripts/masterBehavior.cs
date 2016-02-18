@@ -16,7 +16,7 @@ public class masterBehavior : MonoBehaviour {
 	private int currPlayer;
 	public float zDist;
 
-	public GameObject[] textFields;
+	public GameObject[] textFields; //for score
 	public GameObject[] inventoryList; //text field for pieces, from i = 0 to len/2 is p0, rest is p1
 
 	public GameObject[] pieces; //pieces[0] = array of p0 pieces, pieces[1] = array of p1's pieces
@@ -25,7 +25,7 @@ public class masterBehavior : MonoBehaviour {
 	public GameObject homeButton;
 
 	public GameObject[] tutorials; //holds the info for each tutorial
-	public GameObject tutorialTextField;
+	public GameObject[] tutorialTextFields; //tutorialTextFields[0] == p0 text field, tutorialTextFields[1] == p1 text field
 	private bool tutorialMode;
 	private bool tutModeFin;
 	private int currTut;
@@ -103,51 +103,112 @@ public class masterBehavior : MonoBehaviour {
 		} else {
 			if (needNewTut || tutModeFin) {
 				if (currTut >= tutorials.Length) {
-//					if (Input.GetMouseButtonDown (1)) {
-					tutStep.deActivateBground ();
-					tutorialTextField.GetComponent<Text> ().text = "";
-					//tuts are over
-//					tutorialMode = false;
+					//done with tutorials
+					tutStep.deActivateBground (0);
+					tutStep.deActivateBground (1);
+					tutorialTextFields[0].GetComponent<Text> ().text = "";
+					tutorialTextFields[1].GetComponent<Text> ().text = "";
 					tutModeFin = true;
 					Debug.Log ("homer");
 					if (!homeButton.activeInHierarchy)
 						homeButton.SetActive (true);
 					needNewTut = false;
-//					}
 				} else {
 					tutStep = tutorials [currTut].GetComponent<tutorialSteps> ();
-					tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
+					tutorialTextFields[currPlayer].GetComponent<Text> ().text = tutStep.instruction;
 					currTut++;
 					for (int i = 0; i < tutStep.pieceTags.Length; i++) {
-						//set pieces up
 						players [0].pieceDict [tutStep.pieceTags [i]] = tutStep.p0PieceAmt [i];
 						players [1].pieceDict [tutStep.pieceTags [i]] = tutStep.p1PieceAmt [i];
 					}
 					needNewTut = false;
 				}
 			} else {
+				int otherPlayer = (currPlayer + 1) % 2;
 				//use the tut that's in progress till it's finished
 				if (!players [currPlayer].playedTurn) {
-					if (Input.GetMouseButton (0)) {
-						tutorialTextField.GetComponent<Text> ().text = "";
-						tutStep.deActivateBground ();
-					} else {
-						tutorialTextField.GetComponent<Text> ().text = tutStep.instruction;
-						tutStep.activateBground ();
+//					Debug.Log ("waiting for currPlayer to make turn");
+					tutorialTextFields[otherPlayer].GetComponent<Text> ().text = "";
+					tutStep.deActivateBground(otherPlayer);
+					tutStep.activateBground (currPlayer);
+					if (tutStep.saveGameBoard) {
+						saveGridState ();
 					}
 					players [currPlayer].makeTurn ();
 				} else {
-					tutorialTextField.GetComponent<Text> ().text = tutStep.completed;
-					if (Input.GetMouseButtonDown (1)) {
-						players [currPlayer].playedTurn = false;
-						currPlayer = (currPlayer + 1) % 2;
-						needNewTut = true;
-//						if (currTut < tutorials.Length) {
-						tutStep.activateBground ();
-//						}
+					testSuggestedInstructions ();
+					if (tutStep.useCompleted) {
+						tutorialTextFields[currPlayer].GetComponent<Text> ().text = tutStep.completed;
+						if (Input.GetMouseButtonDown (1)) {
+							players [currPlayer].playedTurn = false;
+							tutStep.activateBground (otherPlayer);
+							tutStep.activateBground (currPlayer);
+							currPlayer = otherPlayer;
+							needNewTut = true;
+						}
+					} else {
+						tutorialTextFields[currPlayer].GetComponent<Text> ().text = tutStep.badCompleted;
+						if (Input.GetMouseButtonDown (1)) {
+							players [currPlayer].playedTurn = false;
+							Debug.Log ("it was set to false");
+//							Debug.Break ();
+							tutorialTextFields[currPlayer].GetComponent<Text> ().text = tutStep.instruction;
+							for (int i = 0; i < grid.GetLength (0); i++) {
+								for (int j = 0; j < grid.GetLength (1); j++) {
+									grid [i, j].GetComponent<cellBehavior> ().goBackToPrevState ();
+								}
+							}
+							tutStep.useCompleted = true;
+							for (int i = 0; i < tutStep.pieceTags.Length; i++) {
+								players [0].pieceDict [tutStep.pieceTags [i]] = tutStep.p0PieceAmt [i];
+								players [1].pieceDict [tutStep.pieceTags [i]] = tutStep.p1PieceAmt [i];
+							}
+						}
 					}
 				}
 				calculateScore ();
+			}
+		}
+	}
+
+	void saveGridState(){
+		for (int i = 0; i < grid.GetLength (0); i++) {
+			for (int j = 0; j < grid.GetLength (1); j++) {
+				grid [i, j].GetComponent<cellBehavior> ().saveState ();
+			}
+		}
+	}
+
+	void testSuggestedInstructions(){
+		//see if player did the 'suggested' placement of contesting a space
+		if (tutStep.testContestSpace) {
+			Debug.Log ("testing contestedSpace");
+			bool contestedSpace = false;
+			for (int i = 0; i < grid.GetLength (0); i++) {
+				for (int j = 0; j < grid.GetLength (1); j++) {
+					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+					if (cellScript.dotCount [0] > 0 && cellScript.dotCount [0] == cellScript.dotCount [1]) {
+						contestedSpace = true;
+						break;
+					}
+				}
+			}
+			if (!contestedSpace) {
+				tutStep.useCompleted = false;
+			}
+		} else if (tutStep.testStarPiece) {
+			Debug.Log ("testing starlet Piece");
+			//see if player did the 'suggested' placement of starlet
+			for (int i = 0; i < grid.GetLength (0); i++) {
+				for (int j = 0; j < grid.GetLength (1); j++) {
+					cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
+					if (cellScript.starOnHere) {
+						if (cellScript.dotCount [currPlayer] > 1) { //played star on space that already has own barrel
+							tutStep.useCompleted = false;
+							break;
+						}
+					}
+				}
 			}
 		}
 	}

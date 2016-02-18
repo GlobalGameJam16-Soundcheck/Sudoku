@@ -306,7 +306,8 @@ public class playerBehavior : MonoBehaviour {
 					Material mat = heldPiece.GetComponent<pieceBehavior> ().mat;
 					if (clickedStar)
 						mat = heldPiece.GetComponent<pieceBehavior> ().matStar;
-					cellScript.makePlacement (player, mat);
+					
+					cellScript.makePlacement (player, mat, clickedAStar());
 					cellScript.updateDots (player, dotColor);
 					updateOrHoverNeighborDots (false, true);
 					Debug.Log ("touching cell + " + cellScript.i + " " + cellScript.j);
