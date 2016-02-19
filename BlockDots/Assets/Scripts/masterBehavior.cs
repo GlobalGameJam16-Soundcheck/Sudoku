@@ -40,6 +40,9 @@ public class masterBehavior : MonoBehaviour {
 	public GameObject[] turnLights;
 	private Color[] origTurnLightColors;
 
+	private float showHomeButtonTimer;
+	private float showHomeButtonWaitTime;
+
 	// Use this for initialization
 	void Start () {
 		n = 5; //n x n grid
@@ -90,12 +93,31 @@ public class masterBehavior : MonoBehaviour {
 		turnLights [1].GetComponent<Light> ().color = Color.black;
 
 		endSpriteSoundPlaying = false;
+
+		showHomeButtonTimer = 0f;
+		showHomeButtonWaitTime = 1f;
 	}
 
-	void switchTurns(int otherPlayer){
+	private void switchTurns(int otherPlayer){
 		turnLights [currPlayer].GetComponent<Light> ().color = Color.black;
 		turnLights[otherPlayer].GetComponent<Light> ().color = origTurnLightColors[otherPlayer];
 		currPlayer = otherPlayer;
+	}
+
+	private void checkShowHomeButton(){
+		if (Input.GetMouseButton (1)) {
+			showHomeButtonTimer += Time.deltaTime;
+			if (showHomeButtonTimer >= showHomeButtonWaitTime) {
+				if (!homeButton.activeInHierarchy) {
+					homeButton.SetActive (true);
+				} else {
+					homeButton.SetActive (false);
+				}
+				showHomeButtonTimer = 0f;
+			}
+		} else {
+			showHomeButtonTimer = 0f;
+		}
 	}
 	
 	// Update is called once per frame
@@ -137,9 +159,12 @@ public class masterBehavior : MonoBehaviour {
 						homeButton.SetActive (true);
 					players [0].gameOver = true;
 					players [1].gameOver = true;
+				} else {
+					checkShowHomeButton ();
 				}
 			}
 		} else {
+			checkShowHomeButton ();
 			if (needNewTut || tutModeFin) {
 				if (currTut >= tutorials.Length) {
 					//done with tutorials
