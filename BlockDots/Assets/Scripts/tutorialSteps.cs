@@ -10,6 +10,7 @@ public class tutorialSteps : MonoBehaviour {
 	public string completed;
 	public bool displayScoreInCompleted;
 	public string completed1; //this is used when we display score;
+	public string completed2;
 	public string badCompleted;
 	public bool useCompleted { get; set; }
 	public int timer; //count down for the amount of seconds to allow the players to play

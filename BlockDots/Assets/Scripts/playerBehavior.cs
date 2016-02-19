@@ -45,6 +45,8 @@ public class playerBehavior : MonoBehaviour {
 	private AudioSource putDownGood;
 	private AudioSource pickUp;
 
+	public Color inventoryColor;
+
 	public bool gameOver { get; set; }
 
 	// Use this for initialization
@@ -384,7 +386,16 @@ public class playerBehavior : MonoBehaviour {
 						Vector3 pos = new Vector3 (potential.transform.position.x, potential.transform.position.y, 
 							              potential.transform.position.z - 1f);
 						heldPiece = (GameObject)Instantiate ((Object)potential, pos, potential.transform.rotation);
-						heldPiece.transform.localScale *= 2;
+						//srry for the hardcode, no time
+						if (heldPiece.CompareTag (a_piece)) {
+							heldPiece.transform.localScale = new Vector3 (0.2f, 0.2f, 2f);
+						} else if (heldPiece.CompareTag (b_piece)) {
+							heldPiece.transform.localScale = new Vector3 (0.25f, 0.25f, 2f);
+						} else if (heldPiece.CompareTag (c_piece)) {
+							heldPiece.transform.localScale = new Vector3 (0.2f, 0.2f, 2f);
+						} else if (heldPiece.CompareTag (star_piece_movable)) {
+							heldPiece.transform.localScale = new Vector3 (0.2f, 0.2f, 2f);
+						}
 						if (heldPiece.GetComponent<pieceBehavior> ().hoverSprite != null){
 							heldPiece.GetComponent<SpriteRenderer> ().sprite = heldPiece.GetComponent<pieceBehavior> ().hoverSprite;
 						}

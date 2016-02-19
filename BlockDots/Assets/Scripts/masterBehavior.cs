@@ -157,17 +157,20 @@ public class masterBehavior : MonoBehaviour {
 					if (tutStep.useCompleted) {
 						string completedText = tutStep.completed;
 						if (tutStep.displayScoreInCompleted){
-							int numBlocksInControl = 0;
-							int currPlayerScore = score [currPlayer];
+							int numBlocksUptownControl = 0;
+							int numBlocksEmpireControl = 0;
 							for (int i = 0; i < grid.GetLength (0); i++) {
 								for (int j = 0; j < grid.GetLength (1); j++) {
 									cellBehavior cellScript = grid [i, j].GetComponent<cellBehavior> ();
-									if (cellScript.dotCount [currPlayer] > cellScript.dotCount [otherPlayer]) {
-										numBlocksInControl++;
+									if (cellScript.dotCount [0] > cellScript.dotCount [1]) {
+										numBlocksUptownControl++;
+									} else if (cellScript.dotCount [1] > cellScript.dotCount [0]) {
+										numBlocksEmpireControl++;
 									}
 								}
 							}
-							completedText += " " + numBlocksInControl.ToString() + " " + tutStep.completed1;
+							completedText += " " + numBlocksUptownControl.ToString() + " " + tutStep.completed1;
+							completedText += " " + numBlocksEmpireControl.ToString () + ". " + tutStep.completed2;
 						}
 						tutorialTextFields [currPlayer].GetComponent<Text> ().text = completedText;
 						if (Input.GetMouseButtonDown (1)) {
@@ -411,7 +414,9 @@ public class masterBehavior : MonoBehaviour {
 			inventoryList [i].GetComponent<Text> ().text = amtLeft.ToString ();
 			if (amtLeft <= 0) {
 				inventoryList [i].GetComponent<Text> ().color = Color.gray;
-			} 
+			} else {
+				inventoryList [i].GetComponent<Text> ().color = players[player].inventoryColor;
+			}
 //			else {
 //				if (tutorialMode)
 //					inventoryList [i].GetComponent<Text> ().color = players[player].inventoryColor;

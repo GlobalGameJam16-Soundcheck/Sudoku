@@ -35,6 +35,9 @@ public class drawPolarFFT : MonoBehaviour
 			started = true;
 			audio.Play ();
 		} else {
+			if (Input.GetMouseButtonDown (0) || Input.GetKeyDown (KeyCode.S)) {
+				SceneManager.LoadScene ("startScreenWithTut");
+			}
 			if (audio.isPlaying) {
 				audio.GetSpectrumData (spectrum, 0, FFTWindow.BlackmanHarris);
 				int i = 1;
