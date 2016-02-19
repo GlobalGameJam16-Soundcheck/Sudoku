@@ -143,14 +143,15 @@ public class playerBehavior : MonoBehaviour {
 				if (!cellGridScript.canBePlayedOn (player, clickedAStar (), firstTurn) ||
 				    (cellGridScript.i == grid.GetLength (0) / 2 && cellGridScript.j == grid.GetLength (1) / 2)) {
 					if (!cellGridScript.isOccupied ()) {
-						cellGridScript.setColor (Color.black);
+//						cellGridScript.setColor (Color.black);
 					} else {
 						cellGridScript.setColor (new Color(64/255f, 64/255f, 64/255f, 1f)); //dark gray
 					}
 				} else if (i == hoverCelli && j == hoverCellj){
 					cellGridScript.setColor (playerColor);
 				} else {
-					cellGridScript.setColor (Color.white);
+					Color whiteTransp = new Color (1f, 1f, 1f, 0.75f);
+					cellGridScript.setColor (whiteTransp);
 				}
 			}
 		}

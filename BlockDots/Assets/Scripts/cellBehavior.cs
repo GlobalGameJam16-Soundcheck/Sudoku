@@ -86,7 +86,8 @@ public class cellBehavior : MonoBehaviour {
 			dotScript.setHover (true);
 			if (!dotScript.coloredIn) {
 				if (!orig) {
-					dotScript.setDotColor (color);
+//					dotScript.setDotColor (color);
+					dotScript.setDotColor (dotScript.origColor);
 					beingHoveredOn = true;
 				} else {
 					dotScript.setDotColor (dotScript.origColor);

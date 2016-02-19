@@ -11,11 +11,20 @@ public class startController : MonoBehaviour {
 	public GameObject startButton;
 	public GameObject howToButton;
 	public float posZ;
+	public GameObject flickerStartScreen;
+	private float flickerStartScreenEndZ;
+	private int numFlickers = 0;
+	private int totalNumFlicks = 10;
+	private int flickSign = 1;
+	private float flickTimer;
+	private float flickWaitTime;
 
 	void Start(){
 		clickCount = -1;
 		howToWasClicked = false;
 		isActive = true;
+		flickerStartScreenEndZ = flickerStartScreen.transform.position.z;
+		flickWaitTime = 0.05f;
 	}
 
 	void Update(){
@@ -26,6 +35,18 @@ public class startController : MonoBehaviour {
 		if (howToWasClicked && Input.GetMouseButtonDown (1)) {
 			clickCount++;
 			Debug.Log ("click count = " + clickCount);
+		}
+
+		if (flickTimer >= flickWaitTime) {
+			if (numFlickers < totalNumFlicks) {
+				numFlickers++;
+				Vector3 pos = flickerStartScreen.transform.position;
+				flickerStartScreen.transform.position = new Vector3 (pos.x, pos.y, (100 * flickSign) + pos.z);
+				flickSign *= -1;
+				flickTimer = 0f;
+			}
+		} else {
+			flickTimer += Time.deltaTime;
 		}
 
 //		if (howToWasClicked && Input.GetMouseButtonDown (0)) {

@@ -20,7 +20,6 @@ public class masterBehavior : MonoBehaviour {
 	public GameObject[] inventoryList; //text field for pieces, from i = 0 to len/2 is p0, rest is p1
 
 	public GameObject[] pieces; //pieces[0] = array of p0 pieces, pieces[1] = array of p1's pieces
-	public GameObject endPiece;
 	public float endPieceZ;
 	public GameObject homeButton;
 
@@ -35,7 +34,11 @@ public class masterBehavior : MonoBehaviour {
 	private bool currPlayerIsHovering; //if player is hovering, add score is displayed in white and previews what score would be
 	private Color[] origScoreColor;
 
-	public Texture[] gameOverTextures;
+	public GameObject[] gameOverSprites;
+	private bool endSpriteSoundPlaying;
+
+	public GameObject[] turnLights;
+	private Color[] origTurnLightColors;
 
 	// Use this for initialization
 	void Start () {
@@ -80,6 +83,19 @@ public class masterBehavior : MonoBehaviour {
 		origScoreColor = new Color[2];
 		origScoreColor [0] = textFields [0].GetComponent<Text> ().color;
 		origScoreColor [1] = textFields [1].GetComponent<Text> ().color;
+
+		origTurnLightColors = new Color[2];
+		origTurnLightColors [0] = turnLights [0].GetComponent<Light> ().color;
+		origTurnLightColors [1] = turnLights [1].GetComponent<Light> ().color;
+		turnLights [1].GetComponent<Light> ().color = Color.black;
+
+		endSpriteSoundPlaying = false;
+	}
+
+	void switchTurns(int otherPlayer){
+		turnLights [currPlayer].GetComponent<Light> ().color = Color.black;
+		turnLights[otherPlayer].GetComponent<Light> ().color = origTurnLightColors[otherPlayer];
+		currPlayer = otherPlayer;
 	}
 	
 	// Update is called once per frame
@@ -90,29 +106,35 @@ public class masterBehavior : MonoBehaviour {
 				players [currPlayer].makeTurn ();
 				if (players [currPlayer].playedTurn) {
 					players [currPlayer].playedTurn = false;
-					currPlayer = (currPlayer + 1) % 2;
+					int otherPlayer = (currPlayer + 1) % 2;
+					switchTurns (otherPlayer);
 				}
 				calculateScore ();
 				if (checkGameOver ()) {
 //					Color winColor = endPiece.GetComponent<MeshRenderer> ().material.color;
-					Texture texture = gameOverTextures [2]; //default for tie
+					GameObject endSprite = gameOverSprites [2]; //default for tie
 					if (score [0] > score [1]) {
 //						winColor = players [0].playerColor;
-						texture = gameOverTextures[0];
+						endSprite = gameOverSprites[0];
 						if (players[1].numPiecesLeft() > 0){
-							texture = gameOverTextures [3]; //win by lockout bc player1 can still go
+							endSprite = gameOverSprites [3]; //win by lockout bc player1 can still go
 						}
 					} else if (score [1] > score [0]) {
 //						winColor = players [1].playerColor;
-						texture = gameOverTextures[1];
+						endSprite = gameOverSprites[1];
 						if (players[0].numPiecesLeft() > 0){
-							texture = gameOverTextures [4]; //win by lockout bc player0 can still go
+							endSprite = gameOverSprites [4]; //win by lockout bc player0 can still go
 						}
 					}
-					endPiece.GetComponent<MeshRenderer> ().material.mainTexture = texture;
-					Vector3 pos = endPiece.transform.position;
-					endPiece.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
-					homeButton.SetActive (true);
+					Vector3 pos = endSprite.transform.position;
+					endSprite.transform.position = new Vector3 (pos.x, pos.y, endPieceZ);
+					if (!endSpriteSoundPlaying) {
+						this.GetComponent<AudioSource> ().Stop ();
+						endSprite.GetComponent<AudioSource> ().Play ();
+						endSpriteSoundPlaying = true;
+					}
+					if (!homeButton.activeInHierarchy)
+						homeButton.SetActive (true);
 					players [0].gameOver = true;
 					players [1].gameOver = true;
 				}
@@ -177,7 +199,7 @@ public class masterBehavior : MonoBehaviour {
 							players [currPlayer].playedTurn = false;
 							tutStep.activateBground (otherPlayer);
 							tutStep.activateBground (currPlayer);
-							currPlayer = otherPlayer;
+							switchTurns (otherPlayer);
 							needNewTut = true;
 						}
 					} else {
